@@ -1,0 +1,851 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Paid Ads Intelligence — AY25 vs AY26</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+:root{
+  --bg:#f4f6fb;--sur:#fff;--su2:#f0f2f8;--su3:#e6e9f4;
+  --bd:#e0e4f0;--bd2:#cdd3e8;
+  --ink:#0d1117;--i2:#3d4560;--i3:#7a839e;--i4:#b0b8d0;
+  --bl:#1a56db;--bl-l:#eef3ff;--bl-m:#93b4f8;
+  --or:#d9480f;--or-l:#fff3ee;--or-m:#f4b39a;
+  --pu:#6d28d9;--pu-l:#f0ebff;--pu-m:#c4a8f2;
+  --gn:#059669;--gn-l:#ecfdf5;
+  --rd:#dc2626;--rd-l:#fef2f2;
+  --am:#b45309;--am-l:#fffbeb;
+  --r:10px;--rs:6px;
+  --s0:0 1px 3px rgba(13,17,23,.05);
+  --s1:0 2px 8px rgba(13,17,23,.08);
+  --fn:'Plus Jakarta Sans',sans-serif;
+  --mo:'Geist Mono',monospace;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--fn);font-size:14px;line-height:1.5;min-height:100vh}
+
+/* TOPBAR */
+.topbar{background:var(--sur);border-bottom:1px solid var(--bd);height:52px;
+  display:flex;align-items:center;padding:0 24px;
+  position:sticky;top:0;z-index:300;box-shadow:var(--s0)}
+.logo{font-size:15px;font-weight:800;letter-spacing:-.5px;margin-right:28px;
+  white-space:nowrap;display:flex;align-items:center;gap:8px}
+.logo-m{width:26px;height:26px;background:var(--bl);border-radius:7px;
+  display:flex;align-items:center;justify-content:center;color:#fff;font-size:11px;font-weight:900}
+.nav{display:flex;overflow-x:auto;flex:1;scrollbar-width:none}
+.nav::-webkit-scrollbar{display:none}
+.nb{height:52px;padding:0 15px;border:none;background:none;
+  font:500 12.5px var(--fn);color:var(--i3);cursor:pointer;
+  border-bottom:2px solid transparent;white-space:nowrap;
+  transition:all .15s;display:flex;align-items:center;gap:6px}
+.nb:hover{color:var(--i2)}
+.nb.act{color:var(--bl);border-bottom-color:var(--bl);font-weight:700}
+
+/* FILTER BAR */
+.fbar{background:var(--sur);border-bottom:1px solid var(--bd);
+  padding:8px 24px;display:flex;flex-wrap:wrap;gap:8px;align-items:center;
+  position:sticky;top:52px;z-index:299;box-shadow:var(--s0)}
+.flbl{font-size:9.5px;font-weight:800;color:var(--i4);text-transform:uppercase;letter-spacing:.8px}
+.fsep{width:1px;height:18px;background:var(--bd2);flex-shrink:0;margin:0 2px}
+
+.ptog{display:flex;background:var(--su2);border:1px solid var(--bd2);border-radius:var(--rs);padding:2px;gap:2px}
+.ptb{padding:4px 11px;border:none;background:none;border-radius:4px;
+  font:700 11px var(--fn);color:var(--i3);cursor:pointer;
+  text-transform:uppercase;letter-spacing:.5px;transition:all .15s;white-space:nowrap}
+.ptb.act{background:var(--bl);color:#fff;box-shadow:0 1px 4px rgba(26,86,219,.3)}
+
+.fsel{background:var(--sur);border:1.5px solid var(--bd2);color:var(--ink);
+  padding:4px 24px 4px 8px;border-radius:var(--rs);font:500 12px var(--fn);cursor:pointer;
+  appearance:none;min-width:120px;transition:border-color .15s;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath fill='%237a839e' d='M0 0l5 6 5-6z'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 7px center}
+.fsel:focus{outline:none;border-color:var(--bl)}
+.fdate{background:var(--sur);border:1.5px solid var(--bd2);color:var(--ink);
+  padding:4px 7px;border-radius:var(--rs);font:500 12px var(--fn);transition:border-color .15s}
+.fdate:focus{outline:none;border-color:var(--bl)}
+.dttog{display:flex;background:var(--su2);border:1px solid var(--bd2);border-radius:var(--rs);padding:2px;gap:2px}
+.dtb{padding:3px 8px;border:none;background:none;border-radius:4px;
+  font:700 10px var(--fn);color:var(--i3);cursor:pointer;
+  text-transform:uppercase;letter-spacing:.5px;transition:all .15s}
+.dtb.act{background:var(--su3);color:var(--i2)}
+.freset{padding:4px 10px;border:1.5px solid var(--bd2);border-radius:var(--rs);
+  font:700 11px var(--fn);color:var(--i3);background:none;cursor:pointer;transition:all .15s}
+.freset:hover{border-color:var(--rd);color:var(--rd)}
+.fbadge{font-size:11px;font-weight:700;color:var(--bl);background:var(--bl-l);
+  padding:3px 9px;border-radius:20px;display:none}
+
+/* PERIOD INFO BAR */
+.pinfo{background:var(--bl-l);border-bottom:1px solid var(--bl-m);
+  padding:6px 24px;display:flex;gap:20px;align-items:center;flex-wrap:wrap}
+.pinfo span{font-size:11.5px;color:var(--bl);display:flex;align-items:center;gap:5px}
+.pdot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+.pnote{font-size:11px;color:var(--i3)!important;font-style:italic}
+
+/* PAGES */
+.pg{display:none;padding:22px 24px 60px;animation:fu .2s ease}
+.pg.act{display:block}
+@keyframes fu{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
+
+/* SECTION HEADER */
+.sh{display:flex;align-items:center;gap:10px;margin-bottom:14px;margin-top:2px}
+.sh-d{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.sh-t{font-size:10px;font-weight:800;color:var(--i3);text-transform:uppercase;letter-spacing:.9px}
+.sh-l{flex:1;height:1px;background:var(--bd)}
+
+/* GRIDS */
+.kr{display:grid;gap:12px;margin-bottom:14px}
+.k3{grid-template-columns:repeat(3,1fr)}
+.k4{grid-template-columns:repeat(4,1fr)}
+.k6{grid-template-columns:repeat(6,1fr)}
+@media(max-width:1200px){.k4,.k6{grid-template-columns:repeat(2,1fr)}}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:14px}
+.g21{display:grid;grid-template-columns:2fr 1fr;gap:14px;margin-bottom:14px}
+.mb{margin-bottom:14px}
+@media(max-width:1100px){.g2,.g3,.g21{grid-template-columns:1fr}}
+
+/* KPI TILE */
+.kpi{background:var(--sur);border:1px solid var(--bd);border-radius:var(--r);
+  padding:16px 17px;box-shadow:var(--s0);position:relative;overflow:hidden;
+  transition:box-shadow .15s,transform .15s}
+.kpi:hover{box-shadow:var(--s1);transform:translateY(-1px)}
+.kpi-bar{position:absolute;top:0;left:0;right:0;height:3px;border-radius:var(--r) var(--r) 0 0}
+.kpi-lbl{font-size:9.5px;font-weight:700;color:var(--i3);text-transform:uppercase;letter-spacing:.7px;margin-bottom:7px}
+.kv-sp{font-size:24px;font-weight:800;letter-spacing:-.8px;color:#1a56db;line-height:1}
+.kv-lv{font-size:24px;font-weight:800;letter-spacing:-.8px;color:#059669;line-height:1}
+.kv-cv{font-size:24px;font-weight:800;letter-spacing:-.8px;color:#6d28d9;line-height:1}
+.kv-cp{font-size:24px;font-weight:800;letter-spacing:-.8px;color:#b45309;line-height:1}
+.kv-ct{font-size:24px;font-weight:800;letter-spacing:-.8px;color:#d9480f;line-height:1}
+.kv-pc{font-size:24px;font-weight:800;letter-spacing:-.8px;color:#059669;line-height:1}
+.kpi-sub{font-size:11px;color:var(--i3);margin-top:5px}
+.kpi-dy{display:inline-flex;align-items:center;gap:3px;font-size:10.5px;font-weight:700;
+  padding:2px 7px;border-radius:20px;margin-top:5px}
+.dg{background:var(--gn-l);color:var(--gn)}.dr{background:var(--rd-l);color:var(--rd)}.dn{background:var(--su2);color:var(--i3)}
+
+/* CATEGORY MEGA TILE */
+.cmt{background:var(--sur);border:1px solid var(--bd);border-radius:var(--r);padding:18px;box-shadow:var(--s0)}
+.cmt-hd{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+.cmt-nm{font-size:13px;font-weight:800;letter-spacing:-.3px}
+.cmt-g{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.cmt-m{padding:10px;background:var(--su2);border-radius:8px}
+.cmt-ml{font-size:9px;font-weight:800;color:var(--i3);text-transform:uppercase;letter-spacing:.7px;margin-bottom:5px}
+.cmt-mv{font-size:16px;font-weight:800;letter-spacing:-.5px;line-height:1}
+.cmt-ms{font-size:10px;color:var(--i3);margin-top:2px}
+
+/* CARD */
+.card{background:var(--sur);border:1px solid var(--bd);border-radius:var(--r);padding:18px;box-shadow:var(--s0)}
+.card-h{font-size:12.5px;font-weight:700;margin-bottom:14px;
+  display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px}
+.card-hl{display:flex;align-items:center;gap:7px}
+.chip{font-size:9px;font-weight:800;padding:2px 7px;border-radius:20px;text-transform:uppercase;letter-spacing:.4px}
+.ch-b{background:var(--bl-l);color:var(--bl)}.ch-g{background:var(--gn-l);color:var(--gn)}
+.ch-r{background:var(--rd-l);color:var(--rd)}.ch-a{background:var(--am-l);color:var(--am)}
+.ch-p{background:var(--pu-l);color:var(--pu)}.ch-n{background:var(--su2);color:var(--i3)}
+
+/* CHARTS */
+.ch{position:relative;width:100%}
+.ch200{height:200px}.ch240{height:240px}.ch280{height:280px}.ch320{height:320px}.ch360{height:360px}
+
+/* TABLE */
+.ts{overflow-x:auto}
+.ts::-webkit-scrollbar{height:4px}
+.ts::-webkit-scrollbar-thumb{background:var(--bd2);border-radius:2px}
+.t{width:100%;border-collapse:collapse;font-size:12.5px}
+.t th{padding:7px 11px;text-align:left;font-size:9.5px;font-weight:800;
+  color:var(--i3);text-transform:uppercase;letter-spacing:.7px;
+  background:var(--su2);border-bottom:1px solid var(--bd2);white-space:nowrap}
+.t td{padding:9px 11px;border-bottom:1px solid var(--bd);vertical-align:middle}
+.t tr:last-child td{border-bottom:none}
+.t tr:hover td{background:#fafbfe}
+.t .num{text-align:right;font-family:var(--mo);font-size:11.5px;color:var(--i2)}
+.t .bold{font-weight:700;color:var(--ink)}
+.t .tr-tot td{background:var(--su2)!important;font-weight:700}
+
+/* METRIC PILLS in tables — each metric distinct */
+.mv{display:inline-block;padding:2px 7px;border-radius:4px;font-family:var(--mo);font-size:11px;font-weight:600;white-space:nowrap}
+.mv-sp{color:#1a56db;background:#eef3ff}
+.mv-lv{color:#059669;background:#ecfdf5}
+.mv-cv{color:#6d28d9;background:#f0ebff}
+.mv-cp{color:#b45309;background:#fffbeb}
+.mv-ct{color:#d9480f;background:#fff3ee}
+.mv-pc{color:#059669;background:#ecfdf5}
+
+/* PILLS / BADGES */
+.catpill{display:inline-flex;align-items:center;padding:2px 9px;border-radius:20px;font-size:11px;font-weight:700}
+.cp-n{background:var(--bl-l);color:var(--bl)}
+.cp-s{background:var(--or-l);color:var(--or)}
+.cp-v{background:var(--pu-l);color:var(--pu)}
+.phb{font-size:11px;font-weight:600;padding:2px 7px;border-radius:4px;background:var(--su2);color:var(--i2)}
+.ctb{font-size:11px;font-weight:600;padding:2px 7px;border-radius:4px;background:#eef0fa;color:var(--i2);font-family:var(--mo)}
+
+/* INLINE DELTA */
+.ig{color:var(--gn);font-weight:700;font-size:11px}
+.ir{color:var(--rd);font-weight:700;font-size:11px}
+.in{color:var(--i3);font-weight:700;font-size:11px}
+
+/* MINI BAR */
+.mbar{height:5px;background:var(--su3);border-radius:3px;overflow:hidden}
+.mbar-f{height:100%;border-radius:3px;transition:width .5s ease}
+
+/* RATING */
+.rat{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:700}
+.rd{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+
+/* INSIGHT */
+.ins{display:flex;gap:12px;padding:12px 14px;border-radius:8px;margin-bottom:8px;border:1px solid var(--bd)}
+.ins-r{background:var(--rd-l);border-color:#fca5a5}
+.ins-g{background:var(--gn-l);border-color:#6ee7b7}
+.ins-a{background:var(--am-l);border-color:#fcd34d}
+.ins-b{background:var(--bl-l);border-color:var(--bl-m)}
+.ins-ico{font-size:18px;flex-shrink:0;margin-top:1px}
+.ins-ti{font-weight:700;font-size:12.5px;margin-bottom:3px}
+.ins-tx{font-size:12px;color:var(--i2);line-height:1.55}
+
+/* YOY COLUMN BORDERS */
+.yn{border-left:2px solid var(--bl-m)!important}
+.ys{border-left:2px solid var(--or-m)!important}
+.yv{border-left:2px solid var(--pu-m)!important}
+.yt{border-left:1px solid var(--bd2)!important}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="logo"><div class="logo-m">PA</div>Paid Ads Intelligence</div>
+  <nav class="nav">
+    <button class="nb act" onclick="tab('exec',this)">◈ Executive Summary</button>
+    <button class="nb" onclick="tab('yoy',this)">↔ YoY Comparison</button>
+    <button class="nb" onclick="tab('cat',this)">◉ Category Breakdown</button>
+    <button class="nb" onclick="tab('ct',this)">▤ Campaign Type</button>
+    <button class="nb" onclick="tab('phase',this)">⟳ Phase Analysis</button>
+    <button class="nb" onclick="tab('trends',this)">∿ Monthly Trends</button>
+    <button class="nb" onclick="tab('ins',this)">◆ Insights &amp; Actions</button>
+  </nav>
+</div>
+
+<div class="fbar">
+  <span class="flbl">Period</span>
+  <div class="ptog">
+    <button class="ptb act" id="pt-ytd" onclick="setPeriod('ytd',this)">YTD vs YTD</button>
+    <button class="ptb" id="pt-full" onclick="setPeriod('full',this)">Full Year vs Full Year</button>
+  </div>
+
+  <div class="fsep"></div>
+  <span class="flbl">Category</span>
+  <select class="fsel" id="f-cat" onchange="applyF()">
+    <option value="">All</option>
+    <option value="NSAT">NSAT</option>
+    <option value="SAT">SAT</option>
+    <option value="VP">Vidyapeeth Admission</option>
+  </select>
+
+  <span class="flbl">Phase</span>
+  <select class="fsel" id="f-ph" onchange="applyF()">
+    <option value="">All</option>
+    <option value="NSAT Ph.1">NSAT Phase 1</option>
+    <option value="NSAT Ph.2">NSAT Phase 2</option>
+    <option value="SAT Ph.1">SAT Phase 1</option>
+    <option value="SAT Ph.2">SAT Phase 2</option>
+    <option value="SAT Ph.3">SAT Phase 3</option>
+    <option value="VP">VP</option>
+  </select>
+
+  <span class="flbl">Campaign</span>
+  <select class="fsel" id="f-ct" onchange="applyF()">
+    <option value="">All</option>
+    <option value="SB">Search Brand</option>
+    <option value="PM">Pmax</option>
+    <option value="FB">Facebook</option>
+    <option value="DG">Demand Gen</option>
+    <option value="YT">YouTube</option>
+    <option value="SG">Search Generic</option>
+    <option value="OT">Other</option>
+  </select>
+
+  <div class="fsep"></div>
+
+  <div style="display:flex;align-items:center;gap:6px">
+    <div class="dttog">
+      <button class="dtb act" id="dt-l" onclick="setDT('l')">Lead Date</button>
+      <button class="dtb" id="dt-j" onclick="setDT('j')">Join Date</button>
+    </div>
+    <span class="flbl">From</span>
+    <input type="date" class="fdate" id="f-d1" onchange="applyF()" min="2025-07-11" max="2026-05-20">
+    <span class="flbl">To</span>
+    <input type="date" class="fdate" id="f-d2" onchange="applyF()" min="2025-07-11" max="2026-05-20">
+  </div>
+
+  <div class="fsep"></div>
+  <button class="freset" onclick="resetF()">↺ Reset</button>
+  <div class="fbadge" id="fbadge">● Filtered</div>
+</div>
+
+<div class="pinfo" id="pinfo">
+  <span><div class="pdot" style="background:var(--bl)"></div><b>TY:</b>&nbsp;AY 26-27 — Jul 2025 to May 2026</span>
+  <span><div class="pdot" style="background:var(--i3)"></div><b>LY (YTD):</b>&nbsp;AY 25-26 — Jul 2024 to May 2025</span>
+  <span class="pnote">Conversions de-duplicated · 1 reg_no = 1 conversion (earliest lead date)</span>
+</div>
+
+<!-- ═══ EXEC ═══ -->
+<div id="pg-exec" class="pg act">
+  <div class="sh"><div class="sh-d" style="background:var(--bl)"></div><span class="sh-t">Overall Performance</span><div class="sh-l"></div></div>
+  <div id="exec-cats" class="kr k3" style="margin-bottom:18px"></div>
+  <div id="exec-tots" class="kr k6" style="margin-bottom:18px"></div>
+  <div class="g21 mb">
+    <div class="card">
+      <div class="card-h"><div class="card-hl">Category Summary <span class="chip ch-b" id="exec-chip">YTD vs LY YTD</span></div></div>
+      <div class="ts"><table class="t"><thead><tr>
+        <th>Category</th>
+        <th>Spend</th><th>vs LY</th><th>Leads</th><th>vs LY</th>
+        <th>Conv</th><th>vs LY</th><th>Conv%</th><th>vs LY</th>
+        <th>CPL</th><th>vs LY</th><th>CPT</th><th>vs LY</th>
+      </tr></thead><tbody id="exec-tbody"></tbody></table></div>
+    </div>
+    <div class="card">
+      <div class="card-h">Spend Mix — TY</div>
+      <div class="ch ch240"><canvas id="c-donut"></canvas></div>
+    </div>
+  </div>
+  <div class="g2">
+    <div class="card">
+      <div class="card-h">Campaign Type — CPT Ranking (TY)</div>
+      <div class="ch ch240"><canvas id="c-ct-rank"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-h">TY vs LY — Spend by Category</div>
+      <div class="ch ch240"><canvas id="c-spend-cmp"></canvas></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ YOY ═══ -->
+<div id="pg-yoy" class="pg">
+  <div class="sh"><div class="sh-d" style="background:var(--bl)"></div><span class="sh-t" id="yoy-sh">YoY — AY26 YTD vs AY25 YTD</span><div class="sh-l"></div></div>
+  <div id="yoy-sp" class="kr k3" style="margin-bottom:10px"></div>
+  <div id="yoy-lv" class="kr k3" style="margin-bottom:10px"></div>
+  <div id="yoy-cv" class="kr k3" style="margin-bottom:10px"></div>
+  <div id="yoy-ef" class="kr k3" style="margin-bottom:18px"></div>
+  <div class="mb card">
+    <div class="card-h">Full Comparison Table <span class="chip ch-n" id="yoy-chip">YTD</span></div>
+    <div class="ts"><table class="t"><thead>
+      <tr>
+        <th rowspan="2">Metric</th>
+        <th colspan="3" class="yn" style="text-align:center;background:var(--bl-l);color:var(--bl)">NSAT</th>
+        <th colspan="3" class="ys" style="text-align:center;background:var(--or-l);color:var(--or)">SAT</th>
+        <th colspan="3" class="yv" style="text-align:center;background:var(--pu-l);color:var(--pu)">VP</th>
+        <th colspan="3" class="yt" style="text-align:center">Total</th>
+      </tr><tr>
+        <th class="yn">TY</th><th>LY</th><th>Δ</th>
+        <th class="ys">TY</th><th>LY</th><th>Δ</th>
+        <th class="yv">TY</th><th>LY</th><th>Δ</th>
+        <th class="yt">TY</th><th>LY</th><th>Δ</th>
+      </tr>
+    </thead><tbody id="yoy-tbody"></tbody></table></div>
+  </div>
+  <div class="g3">
+    <div class="card"><div class="card-h">Conversion Rate TY vs LY</div><div class="ch ch240"><canvas id="c-yoy-cvr"></canvas></div></div>
+    <div class="card"><div class="card-h">CPL TY vs LY</div><div class="ch ch240"><canvas id="c-yoy-cpl"></canvas></div></div>
+    <div class="card"><div class="card-h">CPT TY vs LY</div><div class="ch ch240"><canvas id="c-yoy-cpt"></canvas></div></div>
+  </div>
+</div>
+
+<!-- ═══ CAT ═══ -->
+<div id="pg-cat" class="pg">
+  <div class="sh"><div class="sh-d" style="background:var(--bl)"></div><span class="sh-t">NSAT</span><div class="sh-l"></div></div>
+  <div id="cat-n-kpi" class="kr k6" style="margin-bottom:12px"></div>
+  <div class="g2 mb">
+    <div class="card"><div class="card-h"><div class="card-hl">Campaign Type <span class="chip ch-b">TY</span></div></div><div class="ch ch220"><canvas id="c-n-ct"></canvas></div></div>
+    <div class="card"><div class="card-h">Phase Breakdown</div><div class="ts"><table class="t" id="t-n-ph"><thead><tr><th>Phase</th><th>Spend</th><th>Leads</th><th>CPL</th><th>Share</th></tr></thead><tbody></tbody></table></div></div>
+  </div>
+  <div class="sh" style="margin-top:4px"><div class="sh-d" style="background:var(--or)"></div><span class="sh-t">SAT</span><div class="sh-l"></div></div>
+  <div id="cat-s-kpi" class="kr k6" style="margin-bottom:12px"></div>
+  <div class="g2 mb">
+    <div class="card"><div class="card-h"><div class="card-hl">Campaign Type <span class="chip ch-a">TY</span></div></div><div class="ch ch220"><canvas id="c-s-ct"></canvas></div></div>
+    <div class="card"><div class="card-h">Phase Breakdown</div><div class="ts"><table class="t" id="t-s-ph"><thead><tr><th>Phase</th><th>Spend</th><th>Leads</th><th>CPL</th><th>Share</th></tr></thead><tbody></tbody></table></div></div>
+  </div>
+  <div class="sh" style="margin-top:4px"><div class="sh-d" style="background:var(--pu)"></div><span class="sh-t">Vidyapeeth Admission</span><div class="sh-l"></div></div>
+  <div id="cat-v-kpi" class="kr k6" style="margin-bottom:12px"></div>
+  <div class="g2">
+    <div class="card"><div class="card-h"><div class="card-hl">Campaign Type <span class="chip ch-p">TY</span></div></div><div class="ch ch220"><canvas id="c-v-ct"></canvas></div></div>
+    <div class="card"><div class="card-h">Key Observations</div><div id="vp-obs"></div></div>
+  </div>
+</div>
+
+<!-- ═══ CT ═══ -->
+<div id="pg-ct" class="pg">
+  <div class="sh"><div class="sh-d" style="background:var(--bl)"></div><span class="sh-t">Campaign Type Analysis</span><div class="sh-l"></div></div>
+  <div id="ct-top" class="kr k4" style="margin-bottom:18px"></div>
+  <div class="mb card">
+    <div class="card-h">Campaign Type Table — TY vs LY <span class="chip ch-n" id="ct-chip">YTD</span></div>
+    <div class="ts"><table class="t"><thead><tr>
+      <th>Campaign Type</th>
+      <th>Spend TY</th><th>Leads TY</th><th>Conv TY</th><th>Conv%</th><th>CPL TY</th><th>CPT TY</th>
+      <th style="border-left:1px solid var(--bd2)">CPL LY</th><th>CPT LY</th><th>CPL Δ</th><th>Rating</th>
+    </tr></thead><tbody id="ct-tbody"></tbody></table></div>
+  </div>
+  <div class="g2 mb">
+    <div class="card"><div class="card-h">Spend Distribution (TY)</div><div class="ch ch260"><canvas id="c-ct-pie"></canvas></div></div>
+    <div class="card"><div class="card-h">CPL TY vs LY</div><div class="ch ch260"><canvas id="c-ct-cpl"></canvas></div></div>
+  </div>
+  <div class="sh"><div class="sh-d" style="background:var(--bl)"></div><span class="sh-t">Category × Campaign Type Matrix</span><div class="sh-l"></div></div>
+  <div class="card">
+    <div class="ts"><table class="t"><thead><tr><th>Category</th><th>Campaign Type</th><th>Spend</th><th>Leads</th><th>Conv</th><th>Conv%</th><th>CPL</th><th>CPT</th><th>Rating</th></tr></thead><tbody id="cct-tbody"></tbody></table></div>
+  </div>
+</div>
+
+<!-- ═══ PHASE ═══ -->
+<div id="pg-phase" class="pg">
+  <div class="sh"><div class="sh-d" style="background:var(--bl)"></div><span class="sh-t">Phase Analysis — AY 26-27</span><div class="sh-l"></div></div>
+  <div class="mb card">
+    <div class="card-h">Phase Summary</div>
+    <div class="ts"><table class="t"><thead><tr><th>Category</th><th>Phase</th><th>Spend</th><th>Leads</th><th>CPL</th><th>Spend Share</th><th>Lead Share</th></tr></thead><tbody id="ph-tbody"></tbody></table></div>
+  </div>
+  <div class="g2 mb">
+    <div class="card"><div class="card-h">Spend by Phase</div><div class="ch ch280"><canvas id="c-ph-sp"></canvas></div></div>
+    <div class="card"><div class="card-h">CPL by Phase</div><div class="ch ch280"><canvas id="c-ph-cpl"></canvas></div></div>
+  </div>
+  <div class="g2">
+    <div class="card"><div class="card-h">Lead Distribution</div><div class="ch ch260"><canvas id="c-ph-lv"></canvas></div></div>
+    <div class="card"><div class="card-h">Phase Observations</div><div id="ph-obs"></div></div>
+  </div>
+</div>
+
+<!-- ═══ TRENDS ═══ -->
+<div id="pg-trends" class="pg">
+  <div class="sh"><div class="sh-d" style="background:var(--bl)"></div><span class="sh-t">Monthly Trends — AY 26-27</span><div class="sh-l"></div></div>
+  <div class="mb card">
+    <div class="card-h">Spend · Leads · Conversions Monthly</div>
+    <div class="ch ch360"><canvas id="c-mo-main"></canvas></div>
+  </div>
+  <div class="g3 mb">
+    <div class="card"><div class="card-h">CPL — TY vs LY</div><div class="ch ch220"><canvas id="c-mo-cpl"></canvas></div></div>
+    <div class="card"><div class="card-h">CPT — TY</div><div class="ch ch220"><canvas id="c-mo-cpt"></canvas></div></div>
+    <div class="card"><div class="card-h">Conversion Rate</div><div class="ch ch220"><canvas id="c-mo-cvr"></canvas></div></div>
+  </div>
+  <div class="card">
+    <div class="card-h">Monthly Performance Table</div>
+    <div class="ts"><table class="t"><thead><tr><th>Month</th><th>Spend</th><th>Leads</th><th>Conversions</th><th>Conv%</th><th>CPL</th><th>CPT</th><th>MoM CPL</th></tr></thead><tbody id="mo-tbody"></tbody></table></div>
+  </div>
+</div>
+
+<!-- ═══ INSIGHTS ═══ -->
+<div id="pg-ins" class="pg">
+  <div class="sh"><div class="sh-d" style="background:var(--rd)"></div><span class="sh-t">Critical Issues</span><div class="sh-l"></div></div>
+  <div class="ins ins-r"><div class="ins-ico">🚨</div><div><div class="ins-ti">SAT Conversion Rate Collapsed — 11.32% → 5.07% (−6.25pp)</div><div class="ins-tx">SAT leads grew 62% YoY (167K→293K) but conversions dropped 20% (18,676→14,836). Spend up 17.9%. Lead quality or post-lead funnel issue. Audit CRM, landing pages, lead scoring, counsellor capacity.</div></div></div>
+  <div class="ins ins-r"><div class="ins-ico">🚨</div><div><div class="ins-ti">VP Lead Volume Down 42% YoY — CPL Worsened ₹313 → ₹396</div><div class="ins-tx">VP leads fell from 271K to 157K despite only 27% spend cut. Conversion rate also under pressure. Volume recovery is #1 priority for VP admission targets — new creative, fresh audiences needed urgently.</div></div></div>
+  <div class="ins ins-r"><div class="ins-ico">🚨</div><div><div class="ins-ti">YouTube CPT ₹1,56,203 — 66× Worse than Search Brand (₹2,347)</div><div class="ins-tx">YouTube: ₹85.9L for 55 conversions. Demand Gen: CPT ₹26,155. Combined ₹2.69Cr for 756 conversions. Immediate reallocation to Search Brand expected to generate ~600 additional conversions.</div></div></div>
+
+  <div class="sh" style="margin-top:20px"><div class="sh-d" style="background:var(--am)"></div><span class="sh-t">Watch Points</span><div class="sh-l"></div></div>
+  <div class="ins ins-a"><div class="ins-ico">⚠️</div><div><div class="ins-ti">NSAT CPT Worsened 57% YoY (₹3,447 → ₹5,418)</div><div class="ins-tx">Pmax (CPT ₹7,271) is dragging NSAT efficiency. NSAT Search Brand CPT ₹2,065 is 3.5× better. Shift NSAT budget mix toward Search Brand.</div></div></div>
+  <div class="ins ins-a"><div class="ins-ico">⚠️</div><div><div class="ins-ti">SAT Phase 2 CPL ₹296 — 78% Higher than Phase 1 (₹167)</div><div class="ins-tx">Phase 3 (62% of SAT budget) CPL ₹206 vs Phase 1 ₹167. Move 15–20% from Phase 2/3 to Phase 1 and test efficiency at scale.</div></div></div>
+  <div class="ins ins-a"><div class="ins-ico">⚠️</div><div><div class="ins-ti">Facebook Conv% Only 3.33% — CPT ₹7,446</div><div class="ins-tx">Facebook drives 20% of leads but 3.33% conversion. Use as awareness/lead gen only — pair with Search Brand for conversion capture.</div></div></div>
+
+  <div class="sh" style="margin-top:20px"><div class="sh-d" style="background:var(--gn)"></div><span class="sh-t">Bright Spots</span><div class="sh-l"></div></div>
+  <div class="ins ins-g"><div class="ins-ico">✅</div><div><div class="ins-ti">Search Brand — Best Performer: CPT ₹2,347, Conv% 7.96%</div><div class="ins-tx">₹53.7Cr spend, 287K leads, 22,866 conversions. Every ₹1Cr moved from YouTube/DGen to Search Brand adds ~425 conversions at current CPT.</div></div></div>
+  <div class="ins ins-g"><div class="ins-ico">✅</div><div><div class="ins-ti">CPL Improved ₹247 → ₹231 (−6.5%) — Top Funnel More Efficient</div><div class="ins-tx">Despite total spend falling, CPL improved. Mid/bottom funnel is the weak point. Top funnel efficiency gains will compound further with channel mix rebalancing.</div></div></div>
+
+  <div class="sh" style="margin-top:20px"><div class="sh-d" style="background:var(--bl)"></div><span class="sh-t">CMO Action Plan</span><div class="sh-l"></div></div>
+  <div class="g2">
+    <div class="card">
+      <div class="card-h" style="color:var(--rd)">⚡ Immediate (0–2 weeks)</div>
+      <div style="display:flex;flex-direction:column;gap:11px;padding:2px 0">
+        <div style="display:flex;gap:10px"><div style="background:var(--rd);color:#fff;border-radius:50%;width:21px;height:21px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:900;flex-shrink:0;margin-top:1px">1</div><div><div style="font-weight:700;font-size:12.5px;margin-bottom:2px">Pause YouTube, Cut Demand Gen 50%</div><div style="font-size:12px;color:var(--i2)">Free ₹1.5Cr+. Redirect to Search Brand. Expected: +600 conversions/month.</div></div></div>
+        <div style="display:flex;gap:10px"><div style="background:var(--rd);color:#fff;border-radius:50%;width:21px;height:21px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:900;flex-shrink:0;margin-top:1px">2</div><div><div style="font-weight:700;font-size:12.5px;margin-bottom:2px">SAT Funnel Audit</div><div style="font-size:12px;color:var(--i2)">293K leads → 14,836 conversions (5.07%). Check CRM response time, LP A/B test, lead scoring, counsellor bandwidth.</div></div></div>
+        <div style="display:flex;gap:10px"><div style="background:var(--rd);color:#fff;border-radius:50%;width:21px;height:21px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:900;flex-shrink:0;margin-top:1px">3</div><div><div style="font-weight:700;font-size:12.5px;margin-bottom:2px">VP Creative Refresh</div><div style="font-size:12px;color:var(--i2)">42% lead drop. New creative angles, fresh LAL audiences, review keyword targeting.</div></div></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-h" style="color:var(--am)">📋 Strategic (1–3 months)</div>
+      <div style="display:flex;flex-direction:column;gap:11px;padding:2px 0">
+        <div style="display:flex;gap:10px"><div style="background:var(--am);color:#fff;border-radius:50%;width:21px;height:21px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:900;flex-shrink:0;margin-top:1px">4</div><div><div style="font-weight:700;font-size:12.5px;margin-bottom:2px">Scale Search Brand 30–40%</div><div style="font-size:12px;color:var(--i2)">Best CPT ₹2,347. Audit impression share loss — significant headroom likely available.</div></div></div>
+        <div style="display:flex;gap:10px"><div style="background:var(--am);color:#fff;border-radius:50%;width:21px;height:21px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:900;flex-shrink:0;margin-top:1px">5</div><div><div style="font-weight:700;font-size:12.5px;margin-bottom:2px">SAT Phase Rebalance</div><div style="font-size:12px;color:var(--i2)">Move 20% of Phase 3 budget to Phase 1 (₹167 CPL vs ₹206). Test at smaller scale first.</div></div></div>
+        <div style="display:flex;gap:10px"><div style="background:var(--am);color:#fff;border-radius:50%;width:21px;height:21px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:900;flex-shrink:0;margin-top:1px">6</div><div><div style="font-weight:700;font-size:12.5px;margin-bottom:2px">NSAT Pmax Overhaul</div><div style="font-size:12px;color:var(--i2)">277K leads but CPT ₹7,271. Asset group quality review, add conversion signals, restructure campaigns.</div></div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const R={"sp26":[{"mo":"2025-07","cat":"NSAT","ph":"NSAT Ph.1","ct":"DG","sp":296540.0},{"mo":"2025-07","cat":"NSAT","ph":"NSAT Ph.1","ct":"FB","sp":472439.92},{"mo":"2025-07","cat":"NSAT","ph":"NSAT Ph.1","ct":"PM","sp":1055291.0},{"mo":"2025-07","cat":"NSAT","ph":"NSAT Ph.1","ct":"SB","sp":609542.0},{"mo":"2025-07","cat":"NSAT","ph":"NSAT Ph.1","ct":"YT","sp":295164.0},{"mo":"2025-08","cat":"NSAT","ph":"NSAT Ph.1","ct":"DG","sp":1466444.0},{"mo":"2025-08","cat":"NSAT","ph":"NSAT Ph.1","ct":"FB","sp":1003629.49},{"mo":"2025-08","cat":"NSAT","ph":"NSAT Ph.1","ct":"OT","sp":0.0},{"mo":"2025-08","cat":"NSAT","ph":"NSAT Ph.1","ct":"PM","sp":3762690.0},{"mo":"2025-08","cat":"NSAT","ph":"NSAT Ph.1","ct":"SB","sp":1879450.0},{"mo":"2025-08","cat":"NSAT","ph":"NSAT Ph.1","ct":"YT","sp":901359.0},{"mo":"2025-09","cat":"NSAT","ph":"NSAT Ph.1","ct":"DG","sp":1242033.0},{"mo":"2025-09","cat":"NSAT","ph":"NSAT Ph.1","ct":"FB","sp":2555516.65},{"mo":"2025-09","cat":"NSAT","ph":"NSAT Ph.1","ct":"OT","sp":2372.0},{"mo":"2025-09","cat":"NSAT","ph":"NSAT Ph.1","ct":"PM","sp":7290739.93},{"mo":"2025-09","cat":"NSAT","ph":"NSAT Ph.1","ct":"SB","sp":4011343.0},{"mo":"2025-09","cat":"NSAT","ph":"NSAT Ph.1","ct":"YT","sp":916254.0},{"mo":"2025-10","cat":"NSAT","ph":"NSAT Ph.1","ct":"DG","sp":753840.0},{"mo":"2025-10","cat":"NSAT","ph":"NSAT Ph.1","ct":"FB","sp":2046600.96},{"mo":"2025-10","cat":"NSAT","ph":"NSAT Ph.1","ct":"PM","sp":4689678.77},{"mo":"2025-10","cat":"NSAT","ph":"NSAT Ph.1","ct":"SB","sp":2651029.0},{"mo":"2025-10","cat":"NSAT","ph":"NSAT Ph.1","ct":"YT","sp":459939.0},{"mo":"2025-10","cat":"NSAT","ph":"NSAT Ph.2","ct":"DG","sp":14617.0},{"mo":"2025-10","cat":"NSAT","ph":"NSAT Ph.2","ct":"FB","sp":65562.14},{"mo":"2025-10","cat":"NSAT","ph":"NSAT Ph.2","ct":"PM","sp":1492.0},{"mo":"2025-10","cat":"NSAT","ph":"NSAT Ph.2","ct":"SB","sp":81500.0},{"mo":"2025-10","cat":"NSAT","ph":"NSAT Ph.2","ct":"YT","sp":1552.0},{"mo":"2025-11","cat":"NSAT","ph":"NSAT Ph.2","ct":"DG","sp":1124184.0},{"mo":"2025-11","cat":"NSAT","ph":"NSAT Ph.2","ct":"FB","sp":2123414.11},{"mo":"2025-11","cat":"NSAT","ph":"NSAT Ph.2","ct":"PM","sp":2512630.0},{"mo":"2025-11","cat":"NSAT","ph":"NSAT Ph.2","ct":"SB","sp":1341530.0},{"mo":"2025-11","cat":"NSAT","ph":"NSAT Ph.2","ct":"YT","sp":241187.0},{"mo":"2025-12","cat":"NSAT","ph":"NSAT Ph.2","ct":"DG","sp":1404299.0},{"mo":"2025-12","cat":"NSAT","ph":"NSAT Ph.2","ct":"FB","sp":2518353.44},{"mo":"2025-12","cat":"NSAT","ph":"NSAT Ph.2","ct":"PM","sp":4543105.0},{"mo":"2025-12","cat":"NSAT","ph":"NSAT Ph.2","ct":"SB","sp":1692550.0},{"mo":"2025-12","cat":"NSAT","ph":"NSAT Ph.2","ct":"YT","sp":1660.0},{"mo":"2025-12","cat":"SAT","ph":"SAT Ph.1","ct":"DG","sp":322892.0},{"mo":"2025-12","cat":"SAT","ph":"SAT Ph.1","ct":"FB","sp":592211.5},{"mo":"2025-12","cat":"SAT","ph":"SAT Ph.1","ct":"PM","sp":1002188.0},{"mo":"2025-12","cat":"SAT","ph":"SAT Ph.1","ct":"SB","sp":334344.0},{"mo":"2026-01","cat":"SAT","ph":"SAT Ph.1","ct":"DG","sp":696835.0},{"mo":"2026-01","cat":"SAT","ph":"SAT Ph.1","ct":"FB","sp":2692883.68},{"mo":"2026-01","cat":"SAT","ph":"SAT Ph.1","ct":"PM","sp":3402453.0},{"mo":"2026-01","cat":"SAT","ph":"SAT Ph.1","ct":"SB","sp":1499856.0},{"mo":"2026-01","cat":"SAT","ph":"SAT Ph.2","ct":"DG","sp":229865.0},{"mo":"2026-01","cat":"SAT","ph":"SAT Ph.2","ct":"FB","sp":371098.29},{"mo":"2026-01","cat":"SAT","ph":"SAT Ph.2","ct":"PM","sp":583548.0},{"mo":"2026-01","cat":"SAT","ph":"SAT Ph.2","ct":"SB","sp":285443.0},{"mo":"2026-01","cat":"VP","ph":"VP","ct":"FB","sp":1045180.7800000001},{"mo":"2026-01","cat":"VP","ph":"VP","ct":"SB","sp":655015.0},{"mo":"2026-01","cat":"VP","ph":"VP","ct":"SG","sp":394959.0},{"mo":"2026-01","cat":"VP","ph":"VP","ct":"YT","sp":69455.0},{"mo":"2026-02","cat":"SAT","ph":"SAT Ph.2","ct":"DG","sp":1365236.0},{"mo":"2026-02","cat":"SAT","ph":"SAT Ph.2","ct":"FB","sp":2470563.71},{"mo":"2026-02","cat":"SAT","ph":"SAT Ph.2","ct":"PM","sp":5611667.0},{"mo":"2026-02","cat":"SAT","ph":"SAT Ph.2","ct":"SB","sp":1871544.0},{"mo":"2026-02","cat":"SAT","ph":"SAT Ph.3","ct":"DG","sp":174367.0},{"mo":"2026-02","cat":"SAT","ph":"SAT Ph.3","ct":"FB","sp":372862.75},{"mo":"2026-02","cat":"SAT","ph":"SAT Ph.3","ct":"PM","sp":659008.0},{"mo":"2026-02","cat":"SAT","ph":"SAT Ph.3","ct":"SB","sp":246451.0},{"mo":"2026-02","cat":"VP","ph":"VP","ct":"DG","sp":47529.0},{"mo":"2026-02","cat":"VP","ph":"VP","ct":"FB","sp":3882449.7100000004},{"mo":"2026-02","cat":"VP","ph":"VP","ct":"SB","sp":3665559.0},{"mo":"2026-02","cat":"VP","ph":"VP","ct":"SG","sp":1802001.0},{"mo":"2026-02","cat":"VP","ph":"VP","ct":"YT","sp":864196.0},{"mo":"2026-03","cat":"SAT","ph":"SAT Ph.3","ct":"DG","sp":1714923.0},{"mo":"2026-03","cat":"SAT","ph":"SAT Ph.3","ct":"FB","sp":5187027.53},{"mo":"2026-03","cat":"SAT","ph":"SAT Ph.3","ct":"PM","sp":10118957.0},{"mo":"2026-03","cat":"SAT","ph":"SAT Ph.3","ct":"SB","sp":3758813.0},{"mo":"2026-03","cat":"VP","ph":"VP","ct":"AP","sp":15678.0},{"mo":"2026-03","cat":"VP","ph":"VP","ct":"DG","sp":3149650.0},{"mo":"2026-03","cat":"VP","ph":"VP","ct":"FB","sp":4510956.02},{"mo":"2026-03","cat":"VP","ph":"VP","ct":"SB","sp":15641496.0},{"mo":"2026-03","cat":"VP","ph":"VP","ct":"SG","sp":2799986.0},{"mo":"2026-03","cat":"VP","ph":"VP","ct":"YT","sp":2058884.0},{"mo":"2026-04","cat":"SAT","ph":"SAT Ph.3","ct":"DG","sp":832581.0},{"mo":"2026-04","cat":"SAT","ph":"SAT Ph.3","ct":"FB","sp":2939832.6},{"mo":"2026-04","cat":"SAT","ph":"SAT Ph.3","ct":"PM","sp":4400194.0},{"mo":"2026-04","cat":"SAT","ph":"SAT Ph.3","ct":"SB","sp":1427252.0},{"mo":"2026-04","cat":"VP","ph":"VP","ct":"DG","sp":2182210.0},{"mo":"2026-04","cat":"VP","ph":"VP","ct":"FB","sp":1902446.57},{"mo":"2026-04","cat":"VP","ph":"VP","ct":"OT","sp":18417.73},{"mo":"2026-04","cat":"VP","ph":"VP","ct":"SB","sp":8508758.0},{"mo":"2026-04","cat":"VP","ph":"VP","ct":"SG","sp":1649387.0},{"mo":"2026-04","cat":"VP","ph":"VP","ct":"YT","sp":1549525.0},{"mo":"2026-05","cat":"SAT","ph":"SAT Ph.3","ct":"DG","sp":1010499.0},{"mo":"2026-05","cat":"SAT","ph":"SAT Ph.3","ct":"FB","sp":1391778.16},{"mo":"2026-05","cat":"SAT","ph":"SAT Ph.3","ct":"PM","sp":3491926.0},{"mo":"2026-05","cat":"SAT","ph":"SAT Ph.3","ct":"SB","sp":671397.0},{"mo":"2026-05","cat":"VP","ph":"VP","ct":"DG","sp":306318.0},{"mo":"2026-05","cat":"VP","ph":"VP","ct":"FB","sp":968357.0},{"mo":"2026-05","cat":"VP","ph":"VP","ct":"OT","sp":32069.35},{"mo":"2026-05","cat":"VP","ph":"VP","ct":"SB","sp":2835041.0},{"mo":"2026-05","cat":"VP","ph":"VP","ct":"SG","sp":153150.0},{"mo":"2026-05","cat":"VP","ph":"VP","ct":"YT","sp":1231963.0}],"lv26":[{"mo":"2025-07","cat":"NSAT","ph":"NSAT Ph.1","ct":"FB","lv":3840.0},{"mo":"2025-07","cat":"NSAT","ph":"NSAT Ph.1","ct":"PM","lv":9459.0},{"mo":"2025-07","cat":"NSAT","ph":"NSAT Ph.1","ct":"SB","lv":2526.0},{"mo":"2025-07","cat":"NSAT","ph":"NSAT Ph.1","ct":"YT","lv":93.0},{"mo":"2025-07","cat":"NSAT","ph":"NSAT Ph.2","ct":"SB","lv":0.0},{"mo":"2025-08","cat":"NSAT","ph":"NSAT Ph.1","ct":"FB","lv":11761.0},{"mo":"2025-08","cat":"NSAT","ph":"NSAT Ph.1","ct":"PM","lv":34843.0},{"mo":"2025-08","cat":"NSAT","ph":"NSAT Ph.1","ct":"SB","lv":16171.0},{"mo":"2025-08","cat":"NSAT","ph":"NSAT Ph.2","ct":"SB","lv":0.0},{"mo":"2025-09","cat":"NSAT","ph":"NSAT Ph.1","ct":"FB","lv":17260.0},{"mo":"2025-09","cat":"NSAT","ph":"NSAT Ph.1","ct":"PM","lv":31250.0},{"mo":"2025-09","cat":"NSAT","ph":"NSAT Ph.1","ct":"SB","lv":35650.0},{"mo":"2025-09","cat":"NSAT","ph":"NSAT Ph.1","ct":"YT","lv":1.0},{"mo":"2025-09","cat":"NSAT","ph":"NSAT Ph.2","ct":"SB","lv":0.0},{"mo":"2025-10","cat":"NSAT","ph":"NSAT Ph.1","ct":"FB","lv":8046.0},{"mo":"2025-10","cat":"NSAT","ph":"NSAT Ph.1","ct":"PM","lv":27209.0},{"mo":"2025-10","cat":"NSAT","ph":"NSAT Ph.1","ct":"SB","lv":41047.0},{"mo":"2025-10","cat":"NSAT","ph":"NSAT Ph.2","ct":"FB","lv":279.0},{"mo":"2025-10","cat":"NSAT","ph":"NSAT Ph.2","ct":"PM","lv":37.0},{"mo":"2025-10","cat":"NSAT","ph":"NSAT Ph.2","ct":"SB","lv":529.0},{"mo":"2025-11","cat":"NSAT","ph":"NSAT Ph.1","ct":"FB","lv":0.0},{"mo":"2025-11","cat":"NSAT","ph":"NSAT Ph.1","ct":"PM","lv":0.0},{"mo":"2025-11","cat":"NSAT","ph":"NSAT Ph.1","ct":"SB","lv":0.0},{"mo":"2025-11","cat":"NSAT","ph":"NSAT Ph.2","ct":"FB","lv":8960.0},{"mo":"2025-11","cat":"NSAT","ph":"NSAT Ph.2","ct":"OT","lv":18.0},{"mo":"2025-11","cat":"NSAT","ph":"NSAT Ph.2","ct":"PM","lv":15619.0},{"mo":"2025-11","cat":"NSAT","ph":"NSAT Ph.2","ct":"SB","lv":16858.0},{"mo":"2025-12","cat":"NSAT","ph":"NSAT Ph.1","ct":"FB","lv":0.0},{"mo":"2025-12","cat":"NSAT","ph":"NSAT Ph.1","ct":"PM","lv":0.0},{"mo":"2025-12","cat":"NSAT","ph":"NSAT Ph.1","ct":"SB","lv":0.0},{"mo":"2025-12","cat":"NSAT","ph":"NSAT Ph.2","ct":"FB","lv":6477.0},{"mo":"2025-12","cat":"NSAT","ph":"NSAT Ph.2","ct":"OT","lv":3.0},{"mo":"2025-12","cat":"NSAT","ph":"NSAT Ph.2","ct":"PM","lv":21888.0},{"mo":"2025-12","cat":"NSAT","ph":"NSAT Ph.2","ct":"SB","lv":19727.0},{"mo":"2025-12","cat":"SAT","ph":"SAT Ph.1","ct":"FB","lv":5027.0},{"mo":"2025-12","cat":"SAT","ph":"SAT Ph.1","ct":"PM","lv":9783.0},{"mo":"2025-12","cat":"SAT","ph":"SAT Ph.1","ct":"SB","lv":4117.0},{"mo":"2025-12","cat":"SAT","ph":"SAT Ph.2","ct":"FB","lv":0.0},{"mo":"2025-12","cat":"SAT","ph":"SAT Ph.2","ct":"PM","lv":0.0},{"mo":"2025-12","cat":"SAT","ph":"SAT Ph.2","ct":"SB","lv":0.0},{"mo":"2025-12","cat":"SAT","ph":"SAT Ph.3","ct":"SB","lv":0.0},{"mo":"2026-01","cat":"NSAT","ph":"NSAT Ph.1","ct":"FB","lv":0.0},{"mo":"2026-01","cat":"NSAT","ph":"NSAT Ph.1","ct":"PM","lv":0.0},{"mo":"2026-01","cat":"NSAT","ph":"NSAT Ph.1","ct":"SB","lv":0.0},{"mo":"2026-01","cat":"NSAT","ph":"NSAT Ph.2","ct":"FB","lv":0.0},{"mo":"2026-01","cat":"NSAT","ph":"NSAT Ph.2","ct":"PM","lv":0.0},{"mo":"2026-01","cat":"NSAT","ph":"NSAT Ph.2","ct":"SB","lv":0.0},{"mo":"2026-01","cat":"SAT","ph":"SAT Ph.1","ct":"FB","lv":9698.0},{"mo":"2026-01","cat":"SAT","ph":"SAT Ph.1","ct":"PM","lv":20620.0},{"mo":"2026-01","cat":"SAT","ph":"SAT Ph.1","ct":"SB","lv":13931.0},{"mo":"2026-01","cat":"SAT","ph":"SAT Ph.2","ct":"DG","lv":485.0},{"mo":"2026-01","cat":"SAT","ph":"SAT Ph.2","ct":"FB","lv":2167.0},{"mo":"2026-01","cat":"SAT","ph":"SAT Ph.2","ct":"PM","lv":2796.0},{"mo":"2026-01","cat":"SAT","ph":"SAT Ph.2","ct":"SB","lv":2548.0},{"mo":"2026-01","cat":"SAT","ph":"SAT Ph.3","ct":"FB","lv":0.0},{"mo":"2026-01","cat":"SAT","ph":"SAT Ph.3","ct":"PM","lv":0.0},{"mo":"2026-01","cat":"SAT","ph":"SAT Ph.3","ct":"SB","lv":0.0},{"mo":"2026-01","cat":"VP","ph":"VP","ct":"DG","lv":22.0},{"mo":"2026-01","cat":"VP","ph":"VP","ct":"FB","lv":1517.0},{"mo":"2026-01","cat":"VP","ph":"VP","ct":"OT","lv":417.0},{"mo":"2026-01","cat":"VP","ph":"VP","ct":"SB","lv":1766.0},{"mo":"2026-01","cat":"VP","ph":"VP","ct":"SG","lv":994.0},{"mo":"2026-01","cat":"VP","ph":"VP","ct":"YT","lv":2.0},{"mo":"2026-02","cat":"NSAT","ph":"NSAT Ph.1","ct":"SB","lv":0.0},{"mo":"2026-02","cat":"NSAT","ph":"NSAT Ph.2","ct":"FB","lv":0.0},{"mo":"2026-02","cat":"NSAT","ph":"NSAT Ph.2","ct":"PM","lv":0.0},{"mo":"2026-02","cat":"NSAT","ph":"NSAT Ph.2","ct":"SB","lv":0.0},{"mo":"2026-02","cat":"SAT","ph":"SAT Ph.1","ct":"FB","lv":0.0},{"mo":"2026-02","cat":"SAT","ph":"SAT Ph.1","ct":"PM","lv":0.0},{"mo":"2026-02","cat":"SAT","ph":"SAT Ph.1","ct":"SB","lv":0.0},{"mo":"2026-02","cat":"SAT","ph":"SAT Ph.2","ct":"DG","lv":2781.0},{"mo":"2026-02","cat":"SAT","ph":"SAT Ph.2","ct":"FB","lv":6015.0},{"mo":"2026-02","cat":"SAT","ph":"SAT Ph.2","ct":"PM","lv":16851.0},{"mo":"2026-02","cat":"SAT","ph":"SAT Ph.2","ct":"SB","lv":9596.0},{"mo":"2026-02","cat":"SAT","ph":"SAT Ph.3","ct":"DG","lv":679.0},{"mo":"2026-02","cat":"SAT","ph":"SAT Ph.3","ct":"FB","lv":1619.0},{"mo":"2026-02","cat":"SAT","ph":"SAT Ph.3","ct":"PM","lv":3269.0},{"mo":"2026-02","cat":"SAT","ph":"SAT Ph.3","ct":"SB","lv":1987.0},{"mo":"2026-02","cat":"VP","ph":"VP","ct":"DG","lv":31.0},{"mo":"2026-02","cat":"VP","ph":"VP","ct":"FB","lv":5166.0},{"mo":"2026-02","cat":"VP","ph":"VP","ct":"OT","lv":1643.0},{"mo":"2026-02","cat":"VP","ph":"VP","ct":"SB","lv":6572.0},{"mo":"2026-02","cat":"VP","ph":"VP","ct":"SG","lv":3299.0},{"mo":"2026-02","cat":"VP","ph":"VP","ct":"YT","lv":23.0},{"mo":"2026-03","cat":"NSAT","ph":"NSAT Ph.1","ct":"FB","lv":0.0},{"mo":"2026-03","cat":"NSAT","ph":"NSAT Ph.1","ct":"PM","lv":0.0},{"mo":"2026-03","cat":"NSAT","ph":"NSAT Ph.1","ct":"SB","lv":0.0},{"mo":"2026-03","cat":"NSAT","ph":"NSAT Ph.2","ct":"PM","lv":0.0},{"mo":"2026-03","cat":"NSAT","ph":"NSAT Ph.2","ct":"SB","lv":0.0},{"mo":"2026-03","cat":"SAT","ph":"SAT Ph.1","ct":"FB","lv":0.0},{"mo":"2026-03","cat":"SAT","ph":"SAT Ph.1","ct":"PM","lv":0.0},{"mo":"2026-03","cat":"SAT","ph":"SAT Ph.1","ct":"SB","lv":0.0},{"mo":"2026-03","cat":"SAT","ph":"SAT Ph.2","ct":"DG","lv":0.0},{"mo":"2026-03","cat":"SAT","ph":"SAT Ph.2","ct":"FB","lv":0.0},{"mo":"2026-03","cat":"SAT","ph":"SAT Ph.2","ct":"PM","lv":0.0},{"mo":"2026-03","cat":"SAT","ph":"SAT Ph.2","ct":"SB","lv":0.0},{"mo":"2026-03","cat":"SAT","ph":"SAT Ph.3","ct":"DG","lv":4504.0},{"mo":"2026-03","cat":"SAT","ph":"SAT Ph.3","ct":"FB","lv":20801.0},{"mo":"2026-03","cat":"SAT","ph":"SAT Ph.3","ct":"PM","lv":46761.0},{"mo":"2026-03","cat":"SAT","ph":"SAT Ph.3","ct":"SB","lv":30808.0},{"mo":"2026-03","cat":"VP","ph":"VP","ct":"DG","lv":5095.0},{"mo":"2026-03","cat":"VP","ph":"VP","ct":"FB","lv":20958.0},{"mo":"2026-03","cat":"VP","ph":"VP","ct":"OT","lv":9409.0},{"mo":"2026-03","cat":"VP","ph":"VP","ct":"SB","lv":30054.0},{"mo":"2026-03","cat":"VP","ph":"VP","ct":"SG","lv":5200.0},{"mo":"2026-03","cat":"VP","ph":"VP","ct":"YT","lv":562.0},{"mo":"2026-04","cat":"SAT","ph":"SAT Ph.1","ct":"FB","lv":0.0},{"mo":"2026-04","cat":"SAT","ph":"SAT Ph.1","ct":"PM","lv":0.0},{"mo":"2026-04","cat":"SAT","ph":"SAT Ph.1","ct":"SB","lv":0.0},{"mo":"2026-04","cat":"SAT","ph":"SAT Ph.2","ct":"DG","lv":0.0},{"mo":"2026-04","cat":"SAT","ph":"SAT Ph.2","ct":"FB","lv":0.0},{"mo":"2026-04","cat":"SAT","ph":"SAT Ph.2","ct":"PM","lv":0.0},{"mo":"2026-04","cat":"SAT","ph":"SAT Ph.2","ct":"SB","lv":0.0},{"mo":"2026-04","cat":"SAT","ph":"SAT Ph.3","ct":"DG","lv":1193.0},{"mo":"2026-04","cat":"SAT","ph":"SAT Ph.3","ct":"FB","lv":10814.0},{"mo":"2026-04","cat":"SAT","ph":"SAT Ph.3","ct":"PM","lv":21292.0},{"mo":"2026-04","cat":"SAT","ph":"SAT Ph.3","ct":"SB","lv":12048.0},{"mo":"2026-04","cat":"VP","ph":"VP","ct":"DG","lv":5610.0},{"mo":"2026-04","cat":"VP","ph":"VP","ct":"FB","lv":8847.0},{"mo":"2026-04","cat":"VP","ph":"VP","ct":"OT","lv":5035.0},{"mo":"2026-04","cat":"VP","ph":"VP","ct":"SB","lv":24086.0},{"mo":"2026-04","cat":"VP","ph":"VP","ct":"SG","lv":3366.0},{"mo":"2026-04","cat":"VP","ph":"VP","ct":"YT","lv":528.0},{"mo":"2026-05","cat":"SAT","ph":"SAT Ph.1","ct":"FB","lv":0.0},{"mo":"2026-05","cat":"SAT","ph":"SAT Ph.1","ct":"SB","lv":0.0},{"mo":"2026-05","cat":"SAT","ph":"SAT Ph.2","ct":"DG","lv":0.0},{"mo":"2026-05","cat":"SAT","ph":"SAT Ph.2","ct":"FB","lv":0.0},{"mo":"2026-05","cat":"SAT","ph":"SAT Ph.2","ct":"PM","lv":0.0},{"mo":"2026-05","cat":"SAT","ph":"SAT Ph.2","ct":"SB","lv":0.0},{"mo":"2026-05","cat":"SAT","ph":"SAT Ph.3","ct":"DG","lv":2252.0},{"mo":"2026-05","cat":"SAT","ph":"SAT Ph.3","ct":"FB","lv":7631.0},{"mo":"2026-05","cat":"SAT","ph":"SAT Ph.3","ct":"PM","lv":15637.0},{"mo":"2026-05","cat":"SAT","ph":"SAT Ph.3","ct":"SB","lv":4994.0},{"mo":"2026-05","cat":"VP","ph":"VP","ct":"DG","lv":397.0},{"mo":"2026-05","cat":"VP","ph":"VP","ct":"FB","lv":784.0},{"mo":"2026-05","cat":"VP","ph":"VP","ct":"OT","lv":1684.0},{"mo":"2026-05","cat":"VP","ph":"VP","ct":"SB","lv":12267.0},{"mo":"2026-05","cat":"VP","ph":"VP","ct":"SG","lv":813.0},{"mo":"2026-05","cat":"VP","ph":"VP","ct":"YT","lv":437.0}],"cv26l":[{"mo":"2025-07","cat":"NSAT","ct":"FB","cv":78},{"mo":"2025-07","cat":"NSAT","ct":"PM","cv":183},{"mo":"2025-07","cat":"NSAT","ct":"SB","cv":86},{"mo":"2025-08","cat":"NSAT","ct":"FB","cv":190},{"mo":"2025-08","cat":"NSAT","ct":"PM","cv":705},{"mo":"2025-08","cat":"NSAT","ct":"SB","cv":468},{"mo":"2025-09","cat":"NSAT","ct":"FB","cv":324},{"mo":"2025-09","cat":"NSAT","ct":"PM","cv":564},{"mo":"2025-09","cat":"NSAT","ct":"SB","cv":1188},{"mo":"2025-10","cat":"NSAT","ct":"FB","cv":167},{"mo":"2025-10","cat":"NSAT","ct":"PM","cv":504},{"mo":"2025-10","cat":"NSAT","ct":"SB","cv":1615},{"mo":"2025-11","cat":"NSAT","ct":"FB","cv":281},{"mo":"2025-11","cat":"NSAT","ct":"PM","cv":512},{"mo":"2025-11","cat":"NSAT","ct":"SB","cv":1056},{"mo":"2025-12","cat":"NSAT","ct":"FB","cv":218},{"mo":"2025-12","cat":"NSAT","ct":"PM","cv":734},{"mo":"2025-12","cat":"NSAT","ct":"SB","cv":1438},{"mo":"2025-12","cat":"SAT","ct":"FB","cv":136},{"mo":"2025-12","cat":"SAT","ct":"PM","cv":210},{"mo":"2025-12","cat":"SAT","ct":"SB","cv":278},{"mo":"2026-01","cat":"NSAT","ct":"PM","cv":17},{"mo":"2026-01","cat":"NSAT","ct":"SB","cv":7},{"mo":"2026-01","cat":"SAT","ct":"DG","cv":12},{"mo":"2026-01","cat":"SAT","ct":"FB","cv":305},{"mo":"2026-01","cat":"SAT","ct":"PM","cv":762},{"mo":"2026-01","cat":"SAT","ct":"SB","cv":1206},{"mo":"2026-01","cat":"VP","ct":"DG","cv":3},{"mo":"2026-01","cat":"VP","ct":"FB","cv":110},{"mo":"2026-01","cat":"VP","ct":"OT","cv":35},{"mo":"2026-01","cat":"VP","ct":"SB","cv":158},{"mo":"2026-01","cat":"VP","ct":"SG","cv":39},{"mo":"2026-02","cat":"NSAT","ct":"PM","cv":3},{"mo":"2026-02","cat":"NSAT","ct":"SB","cv":2},{"mo":"2026-02","cat":"SAT","ct":"DG","cv":82},{"mo":"2026-02","cat":"SAT","ct":"FB","cv":207},{"mo":"2026-02","cat":"SAT","ct":"PM","cv":735},{"mo":"2026-02","cat":"SAT","ct":"SB","cv":1150},{"mo":"2026-02","cat":"VP","ct":"DG","cv":4},{"mo":"2026-02","cat":"VP","ct":"FB","cv":310},{"mo":"2026-02","cat":"VP","ct":"OT","cv":90},{"mo":"2026-02","cat":"VP","ct":"SB","cv":675},{"mo":"2026-02","cat":"VP","ct":"SG","cv":146},{"mo":"2026-03","cat":"NSAT","ct":"PM","cv":1},{"mo":"2026-03","cat":"NSAT","ct":"SB","cv":1},{"mo":"2026-03","cat":"SAT","ct":"DG","cv":75},{"mo":"2026-03","cat":"SAT","ct":"FB","cv":544},{"mo":"2026-03","cat":"SAT","ct":"PM","cv":2009},{"mo":"2026-03","cat":"SAT","ct":"SB","cv":2920},{"mo":"2026-03","cat":"VP","ct":"DG","cv":187},{"mo":"2026-03","cat":"VP","ct":"FB","cv":684},{"mo":"2026-03","cat":"VP","ct":"OT","cv":524},{"mo":"2026-03","cat":"VP","ct":"SB","cv":2837},{"mo":"2026-03","cat":"VP","ct":"SG","cv":292},{"mo":"2026-03","cat":"VP","ct":"YT","cv":22},{"mo":"2026-04","cat":"SAT","ct":"DG","cv":32},{"mo":"2026-04","cat":"SAT","ct":"FB","cv":268},{"mo":"2026-04","cat":"SAT","ct":"PM","cv":1330},{"mo":"2026-04","cat":"SAT","ct":"SB","cv":1508},{"mo":"2026-04","cat":"VP","ct":"DG","cv":97},{"mo":"2026-04","cat":"VP","ct":"FB","cv":189},{"mo":"2026-04","cat":"VP","ct":"OT","cv":252},{"mo":"2026-04","cat":"VP","ct":"SB","cv":1777},{"mo":"2026-04","cat":"VP","ct":"SG","cv":140},{"mo":"2026-04","cat":"VP","ct":"YT","cv":13},{"mo":"2026-05","cat":"SAT","ct":"DG","cv":18},{"mo":"2026-05","cat":"SAT","ct":"FB","cv":115},{"mo":"2026-05","cat":"SAT","ct":"PM","cv":523},{"mo":"2026-05","cat":"SAT","ct":"SB","cv":411},{"mo":"2026-05","cat":"VP","ct":"DG","cv":7},{"mo":"2026-05","cat":"VP","ct":"FB","cv":22},{"mo":"2026-05","cat":"VP","ct":"OT","cv":75},{"mo":"2026-05","cat":"VP","ct":"SB","cv":632},{"mo":"2026-05","cat":"VP","ct":"SG","cv":23},{"mo":"2026-05","cat":"VP","ct":"YT","cv":3}],"cv26j":[{"mo":"2025-08","cat":"NSAT","ct":"SB","cv":1},{"mo":"2025-09","cat":"NSAT","ct":"FB","cv":34},{"mo":"2025-09","cat":"NSAT","ct":"PM","cv":83},{"mo":"2025-09","cat":"NSAT","ct":"SB","cv":151},{"mo":"2025-10","cat":"NSAT","ct":"FB","cv":75},{"mo":"2025-10","cat":"NSAT","ct":"PM","cv":162},{"mo":"2025-10","cat":"NSAT","ct":"SB","cv":517},{"mo":"2025-11","cat":"NSAT","ct":"FB","cv":204},{"mo":"2025-11","cat":"NSAT","ct":"PM","cv":452},{"mo":"2025-11","cat":"NSAT","ct":"SB","cv":1153},{"mo":"2025-12","cat":"NSAT","ct":"FB","cv":347},{"mo":"2025-12","cat":"NSAT","ct":"PM","cv":810},{"mo":"2025-12","cat":"NSAT","ct":"SB","cv":1889},{"mo":"2025-12","cat":"SAT","ct":"FB","cv":19},{"mo":"2025-12","cat":"SAT","ct":"PM","cv":18},{"mo":"2025-12","cat":"SAT","ct":"SB","cv":86},{"mo":"2026-01","cat":"NSAT","ct":"FB","cv":160},{"mo":"2026-01","cat":"NSAT","ct":"PM","cv":501},{"mo":"2026-01","cat":"NSAT","ct":"SB","cv":730},{"mo":"2026-01","cat":"SAT","ct":"DG","cv":1},{"mo":"2026-01","cat":"SAT","ct":"FB","cv":202},{"mo":"2026-01","cat":"SAT","ct":"PM","cv":523},{"mo":"2026-01","cat":"SAT","ct":"SB","cv":914},{"mo":"2026-01","cat":"VP","ct":"DG","cv":2},{"mo":"2026-01","cat":"VP","ct":"FB","cv":33},{"mo":"2026-01","cat":"VP","ct":"OT","cv":14},{"mo":"2026-01","cat":"VP","ct":"SB","cv":71},{"mo":"2026-01","cat":"VP","ct":"SG","cv":14},{"mo":"2026-02","cat":"NSAT","ct":"FB","cv":81},{"mo":"2026-02","cat":"NSAT","ct":"PM","cv":258},{"mo":"2026-02","cat":"NSAT","ct":"SB","cv":286},{"mo":"2026-02","cat":"SAT","ct":"DG","cv":37},{"mo":"2026-02","cat":"SAT","ct":"FB","cv":179},{"mo":"2026-02","cat":"SAT","ct":"PM","cv":516},{"mo":"2026-02","cat":"SAT","ct":"SB","cv":996},{"mo":"2026-02","cat":"VP","ct":"DG","cv":1},{"mo":"2026-02","cat":"VP","ct":"FB","cv":195},{"mo":"2026-02","cat":"VP","ct":"OT","cv":61},{"mo":"2026-02","cat":"VP","ct":"SB","cv":400},{"mo":"2026-02","cat":"VP","ct":"SG","cv":88},{"mo":"2026-03","cat":"NSAT","ct":"FB","cv":176},{"mo":"2026-03","cat":"NSAT","ct":"PM","cv":464},{"mo":"2026-03","cat":"NSAT","ct":"SB","cv":599},{"mo":"2026-03","cat":"SAT","ct":"DG","cv":73},{"mo":"2026-03","cat":"SAT","ct":"FB","cv":440},{"mo":"2026-03","cat":"SAT","ct":"PM","cv":1694},{"mo":"2026-03","cat":"SAT","ct":"SB","cv":2569},{"mo":"2026-03","cat":"VP","ct":"DG","cv":120},{"mo":"2026-03","cat":"VP","ct":"FB","cv":602},{"mo":"2026-03","cat":"VP","ct":"OT","cv":430},{"mo":"2026-03","cat":"VP","ct":"SB","cv":2199},{"mo":"2026-03","cat":"VP","ct":"SG","cv":253},{"mo":"2026-03","cat":"VP","ct":"YT","cv":18},{"mo":"2026-04","cat":"NSAT","ct":"FB","cv":114},{"mo":"2026-04","cat":"NSAT","ct":"PM","cv":362},{"mo":"2026-04","cat":"NSAT","ct":"SB","cv":388},{"mo":"2026-04","cat":"SAT","ct":"DG","cv":66},{"mo":"2026-04","cat":"SAT","ct":"FB","cv":462},{"mo":"2026-04","cat":"SAT","ct":"PM","cv":1943},{"mo":"2026-04","cat":"SAT","ct":"SB","cv":2227},{"mo":"2026-04","cat":"VP","ct":"DG","cv":135},{"mo":"2026-04","cat":"VP","ct":"FB","cv":395},{"mo":"2026-04","cat":"VP","ct":"OT","cv":342},{"mo":"2026-04","cat":"VP","ct":"SB","cv":2360},{"mo":"2026-04","cat":"VP","ct":"SG","cv":211},{"mo":"2026-04","cat":"VP","ct":"YT","cv":14},{"mo":"2026-05","cat":"NSAT","ct":"FB","cv":67},{"mo":"2026-05","cat":"NSAT","ct":"PM","cv":131},{"mo":"2026-05","cat":"NSAT","ct":"SB","cv":147},{"mo":"2026-05","cat":"SAT","ct":"DG","cv":42},{"mo":"2026-05","cat":"SAT","ct":"FB","cv":273},{"mo":"2026-05","cat":"SAT","ct":"PM","cv":875},{"mo":"2026-05","cat":"SAT","ct":"SB","cv":681},{"mo":"2026-05","cat":"VP","ct":"DG","cv":40},{"mo":"2026-05","cat":"VP","ct":"FB","cv":90},{"mo":"2026-05","cat":"VP","ct":"OT","cv":129},{"mo":"2026-05","cat":"VP","ct":"SB","cv":1049},{"mo":"2026-05","cat":"VP","ct":"SG","cv":74},{"mo":"2026-05","cat":"VP","ct":"YT","cv":6}],"sp25":[{"mo":"2024-08","cat":"NSAT","ph":"NSAT","ct":"DG","sp":505568.0},{"mo":"2024-08","cat":"NSAT","ph":"NSAT","ct":"FB","sp":525191.0},{"mo":"2024-08","cat":"NSAT","ph":"NSAT","ct":"OT","sp":548732.0},{"mo":"2024-08","cat":"NSAT","ph":"NSAT","ct":"PM","sp":553066.0},{"mo":"2024-08","cat":"NSAT","ph":"NSAT","ct":"SB","sp":0.0},{"mo":"2024-08","cat":"NSAT","ph":"NSAT","ct":"SO","sp":202260.0},{"mo":"2024-09","cat":"NSAT","ph":"NSAT","ct":"DG","sp":4458231.0},{"mo":"2024-09","cat":"NSAT","ph":"NSAT","ct":"FB","sp":3028011.0},{"mo":"2024-09","cat":"NSAT","ph":"NSAT","ct":"OT","sp":5009744.0},{"mo":"2024-09","cat":"NSAT","ph":"NSAT","ct":"PM","sp":5407122.0},{"mo":"2024-09","cat":"NSAT","ph":"NSAT","ct":"SB","sp":0.0},{"mo":"2024-09","cat":"NSAT","ph":"NSAT","ct":"SO","sp":1396762.0},{"mo":"2024-10","cat":"NSAT","ph":"NSAT","ct":"DG","sp":2211123.0},{"mo":"2024-10","cat":"NSAT","ph":"NSAT","ct":"FB","sp":1171600.0},{"mo":"2024-10","cat":"NSAT","ph":"NSAT","ct":"OT","sp":2433668.0},{"mo":"2024-10","cat":"NSAT","ph":"NSAT","ct":"PM","sp":3142065.0},{"mo":"2024-10","cat":"NSAT","ph":"NSAT","ct":"SB","sp":0.0},{"mo":"2024-10","cat":"NSAT","ph":"NSAT","ct":"SG","sp":16564.0},{"mo":"2024-10","cat":"NSAT","ph":"NSAT","ct":"SO","sp":914279.0},{"mo":"2024-11","cat":"NSAT","ph":"NSAT 2","ct":"DG","sp":1873873.0},{"mo":"2024-11","cat":"NSAT","ph":"NSAT 2","ct":"FB","sp":503021.0},{"mo":"2024-11","cat":"NSAT","ph":"NSAT 2","ct":"OT","sp":1637944.0},{"mo":"2024-11","cat":"NSAT","ph":"NSAT 2","ct":"PM","sp":1561399.0},{"mo":"2024-11","cat":"NSAT","ph":"NSAT 2","ct":"SB","sp":150001.0},{"mo":"2024-11","cat":"NSAT","ph":"NSAT 2","ct":"SG","sp":67282.0},{"mo":"2024-11","cat":"NSAT","ph":"NSAT 2","ct":"SO","sp":718400.0},{"mo":"2024-12","cat":"NSAT","ph":"NSAT 2","ct":"DG","sp":3021378.0},{"mo":"2024-12","cat":"NSAT","ph":"NSAT 2","ct":"FB","sp":835157.0},{"mo":"2024-12","cat":"NSAT","ph":"NSAT 2","ct":"OT","sp":2382883.0},{"mo":"2024-12","cat":"NSAT","ph":"NSAT 2","ct":"PM","sp":2490653.0},{"mo":"2024-12","cat":"NSAT","ph":"NSAT 2","ct":"SB","sp":196001.0},{"mo":"2024-12","cat":"NSAT","ph":"NSAT 2","ct":"SG","sp":0.0},{"mo":"2024-12","cat":"NSAT","ph":"NSAT 2","ct":"SO","sp":945601.0},{"mo":"2024-12","cat":"VP","ph":"VP","ct":"DG","sp":90732.0},{"mo":"2024-12","cat":"VP","ph":"VP","ct":"FB","sp":630067.0},{"mo":"2024-12","cat":"VP","ph":"VP","ct":"OT","sp":21455.0},{"mo":"2024-12","cat":"VP","ph":"VP","ct":"SB","sp":335881.0},{"mo":"2024-12","cat":"VP","ph":"VP","ct":"SG","sp":518765.0},{"mo":"2025-01","cat":"SAT","ph":"SAT 2","ct":"DG","sp":146715.0},{"mo":"2025-01","cat":"SAT","ph":"SAT 2","ct":"FB","sp":119876.0},{"mo":"2025-01","cat":"SAT","ph":"SAT 2","ct":"OT","sp":149967.0},{"mo":"2025-01","cat":"SAT","ph":"SAT 2","ct":"PM","sp":187516.0},{"mo":"2025-01","cat":"SAT","ph":"SAT 2","ct":"SB","sp":0.0},{"mo":"2025-01","cat":"SAT","ph":"SAT 2","ct":"SG","sp":0.0},{"mo":"2025-01","cat":"SAT","ph":"SAT 2","ct":"SO","sp":287037.0},{"mo":"2025-01","cat":"SAT","ph":"SAT 3","ct":"FB","sp":0.0},{"mo":"2025-01","cat":"SAT","ph":"SAT 3","ct":"PM","sp":0.0},{"mo":"2025-01","cat":"SAT","ph":"SAT 3","ct":"SO","sp":0.0},{"mo":"2025-01","cat":"SAT","ph":"SAT Ph.1","ct":"DG","sp":1501776.0},{"mo":"2025-01","cat":"SAT","ph":"SAT Ph.1","ct":"FB","sp":1012417.0},{"mo":"2025-01","cat":"SAT","ph":"SAT Ph.1","ct":"OT","sp":1744743.0},{"mo":"2025-01","cat":"SAT","ph":"SAT Ph.1","ct":"PM","sp":2145029.0},{"mo":"2025-01","cat":"SAT","ph":"SAT Ph.1","ct":"SB","sp":0.0},{"mo":"2025-01","cat":"SAT","ph":"SAT Ph.1","ct":"SG","sp":0.0},{"mo":"2025-01","cat":"SAT","ph":"SAT Ph.1","ct":"SO","sp":1442819.0},{"mo":"2025-01","cat":"VP","ph":"VP","ct":"DG","sp":1250374.0},{"mo":"2025-01","cat":"VP","ph":"VP","ct":"FB","sp":2958571.0},{"mo":"2025-01","cat":"VP","ph":"VP","ct":"OT","sp":974970.0},{"mo":"2025-01","cat":"VP","ph":"VP","ct":"SB","sp":2813157.0},{"mo":"2025-01","cat":"VP","ph":"VP","ct":"SG","sp":2852656.0},{"mo":"2025-02","cat":"SAT","ph":"SAT 2","ct":"DG","sp":1024501.0},{"mo":"2025-02","cat":"SAT","ph":"SAT 2","ct":"FB","sp":1160882.0},{"mo":"2025-02","cat":"SAT","ph":"SAT 2","ct":"OT","sp":1868643.0},{"mo":"2025-02","cat":"SAT","ph":"SAT 2","ct":"PM","sp":2426586.0},{"mo":"2025-02","cat":"SAT","ph":"SAT 2","ct":"SB","sp":0.0},{"mo":"2025-02","cat":"SAT","ph":"SAT 2","ct":"SG","sp":0.0},{"mo":"2025-02","cat":"SAT","ph":"SAT 2","ct":"SO","sp":1156630.0},{"mo":"2025-02","cat":"SAT","ph":"SAT 3","ct":"DG","sp":49813.0},{"mo":"2025-02","cat":"SAT","ph":"SAT 3","ct":"FB","sp":124486.0},{"mo":"2025-02","cat":"SAT","ph":"SAT 3","ct":"OT","sp":103119.0},{"mo":"2025-02","cat":"SAT","ph":"SAT 3","ct":"PM","sp":249709.0},{"mo":"2025-02","cat":"SAT","ph":"SAT 3","ct":"SB","sp":5519.0},{"mo":"2025-02","cat":"SAT","ph":"SAT 3","ct":"SG","sp":0.0},{"mo":"2025-02","cat":"SAT","ph":"SAT 3","ct":"SO","sp":104460.0},{"mo":"2025-02","cat":"SAT","ph":"SAT 4","ct":"FB","sp":0.0},{"mo":"2025-02","cat":"SAT","ph":"SAT 4","ct":"PM","sp":0.0},{"mo":"2025-02","cat":"VP","ph":"VP","ct":"DG","sp":1527951.0},{"mo":"2025-02","cat":"VP","ph":"VP","ct":"FB","sp":1090930.0},{"mo":"2025-02","cat":"VP","ph":"VP","ct":"OT","sp":1047919.0},{"mo":"2025-02","cat":"VP","ph":"VP","ct":"SB","sp":2866078.0},{"mo":"2025-02","cat":"VP","ph":"VP","ct":"SG","sp":2288225.0},{"mo":"2025-03","cat":"SAT","ph":"SAT 3","ct":"DG","sp":1070969.0},{"mo":"2025-03","cat":"SAT","ph":"SAT 3","ct":"FB","sp":2354069.0},{"mo":"2025-03","cat":"SAT","ph":"SAT 3","ct":"OT","sp":2044327.0},{"mo":"2025-03","cat":"SAT","ph":"SAT 3","ct":"PM","sp":5775687.0},{"mo":"2025-03","cat":"SAT","ph":"SAT 3","ct":"SB","sp":674948.0},{"mo":"2025-03","cat":"SAT","ph":"SAT 3","ct":"SG","sp":0.0},{"mo":"2025-03","cat":"SAT","ph":"SAT 3","ct":"SO","sp":3619154.0},{"mo":"2025-03","cat":"VP","ph":"VP","ct":"DG","sp":1903915.0},{"mo":"2025-03","cat":"VP","ph":"VP","ct":"FB","sp":5639552.0},{"mo":"2025-03","cat":"VP","ph":"VP","ct":"OT","sp":696496.0},{"mo":"2025-03","cat":"VP","ph":"VP","ct":"SB","sp":14023676.0},{"mo":"2025-03","cat":"VP","ph":"VP","ct":"SG","sp":10247261.0},{"mo":"2025-04","cat":"SAT","ph":"SAT 3","ct":"DG","sp":278623.0},{"mo":"2025-04","cat":"SAT","ph":"SAT 3","ct":"FB","sp":869572.0},{"mo":"2025-04","cat":"SAT","ph":"SAT 3","ct":"OT","sp":417414.0},{"mo":"2025-04","cat":"SAT","ph":"SAT 3","ct":"PM","sp":3729492.0},{"mo":"2025-04","cat":"SAT","ph":"SAT 3","ct":"SB","sp":245154.0},{"mo":"2025-04","cat":"SAT","ph":"SAT 3","ct":"SG","sp":0.0},{"mo":"2025-04","cat":"SAT","ph":"SAT 3","ct":"SO","sp":2409375.0},{"mo":"2025-04","cat":"SAT","ph":"SAT 4","ct":"DG","sp":165862.0},{"mo":"2025-04","cat":"SAT","ph":"SAT 4","ct":"FB","sp":731667.0},{"mo":"2025-04","cat":"SAT","ph":"SAT 4","ct":"OT","sp":74607.0},{"mo":"2025-04","cat":"SAT","ph":"SAT 4","ct":"PM","sp":2488164.0},{"mo":"2025-04","cat":"SAT","ph":"SAT 4","ct":"SB","sp":198018.0},{"mo":"2025-04","cat":"SAT","ph":"SAT 4","ct":"SO","sp":1457808.0},{"mo":"2025-04","cat":"SAT","ph":"SAT 5","ct":"PM","sp":0.0},{"mo":"2025-04","cat":"VP","ph":"VP","ct":"DG","sp":482485.0},{"mo":"2025-04","cat":"VP","ph":"VP","ct":"FB","sp":5316287.0},{"mo":"2025-04","cat":"VP","ph":"VP","ct":"OT","sp":212315.0},{"mo":"2025-04","cat":"VP","ph":"VP","ct":"SB","sp":10590804.0},{"mo":"2025-04","cat":"VP","ph":"VP","ct":"SG","sp":4489720.0},{"mo":"2025-05","cat":"SAT","ph":"SAT 4","ct":"DG","sp":179600.0},{"mo":"2025-05","cat":"SAT","ph":"SAT 4","ct":"FB","sp":1381476.0},{"mo":"2025-05","cat":"SAT","ph":"SAT 4","ct":"OT","sp":81018.0},{"mo":"2025-05","cat":"SAT","ph":"SAT 4","ct":"PM","sp":3593973.0},{"mo":"2025-05","cat":"SAT","ph":"SAT 4","ct":"SB","sp":292439.0},{"mo":"2025-05","cat":"SAT","ph":"SAT 4","ct":"SO","sp":2675368.0},{"mo":"2025-05","cat":"SAT","ph":"SAT 5","ct":"DG","sp":0.0},{"mo":"2025-05","cat":"SAT","ph":"SAT 5","ct":"FB","sp":0.0},{"mo":"2025-05","cat":"SAT","ph":"SAT 5","ct":"PM","sp":0.0},{"mo":"2025-05","cat":"SAT","ph":"SAT 5","ct":"SO","sp":0.0},{"mo":"2025-05","cat":"VP","ph":"VP","ct":"DG","sp":110464.0},{"mo":"2025-05","cat":"VP","ph":"VP","ct":"FB","sp":1852974.0},{"mo":"2025-05","cat":"VP","ph":"VP","ct":"OT","sp":56158.0},{"mo":"2025-05","cat":"VP","ph":"VP","ct":"SB","sp":9458972.0},{"mo":"2025-05","cat":"VP","ph":"VP","ct":"SG","sp":1977852.0},{"mo":"2025-06","cat":"SAT","ph":"SAT 5","ct":"FB","sp":0.0},{"mo":"2025-06","cat":"SAT","ph":"SAT 5","ct":"OT","sp":0.0},{"mo":"2025-06","cat":"SAT","ph":"SAT 5","ct":"PM","sp":3097573.0},{"mo":"2025-06","cat":"SAT","ph":"SAT 5","ct":"SB","sp":0.0},{"mo":"2025-06","cat":"SAT","ph":"SAT 5","ct":"SO","sp":75694.0},{"mo":"2025-06","cat":"VP","ph":"VP","ct":"DG","sp":26688.0},{"mo":"2025-06","cat":"VP","ph":"VP","ct":"FB","sp":993893.0},{"mo":"2025-06","cat":"VP","ph":"VP","ct":"OT","sp":43517.0},{"mo":"2025-06","cat":"VP","ph":"VP","ct":"SB","sp":5016051.0},{"mo":"2025-06","cat":"VP","ph":"VP","ct":"SG","sp":1306366.0},{"mo":"2025-07","cat":"SAT","ph":"SAT 5","ct":"PM","sp":27983.0},{"mo":"2025-07","cat":"VP","ph":"VP","ct":"DG","sp":0.0},{"mo":"2025-07","cat":"VP","ph":"VP","ct":"FB","sp":239989.0},{"mo":"2025-07","cat":"VP","ph":"VP","ct":"OT","sp":892.0},{"mo":"2025-07","cat":"VP","ph":"VP","ct":"SB","sp":3350583.0},{"mo":"2025-07","cat":"VP","ph":"VP","ct":"SG","sp":162937.0},{"mo":"2025-08","cat":"VP","ph":"VP","ct":"DG","sp":0.0},{"mo":"2025-08","cat":"VP","ph":"VP","ct":"FB","sp":0.0},{"mo":"2025-08","cat":"VP","ph":"VP","ct":"OT","sp":0.0},{"mo":"2025-08","cat":"VP","ph":"VP","ct":"SB","sp":0.0},{"mo":"2025-08","cat":"VP","ph":"VP","ct":"SG","sp":0.0},{"mo":"2025-09","cat":"VP","ph":"VP","ct":"DG","sp":0.0},{"mo":"2025-09","cat":"VP","ph":"VP","ct":"FB","sp":0.0},{"mo":"2025-09","cat":"VP","ph":"VP","ct":"OT","sp":0.0},{"mo":"2025-09","cat":"VP","ph":"VP","ct":"SB","sp":0.0},{"mo":"2025-09","cat":"VP","ph":"VP","ct":"SG","sp":0.0},{"mo":"2025-10","cat":"VP","ph":"VP","ct":"DG","sp":0.0},{"mo":"2025-10","cat":"VP","ph":"VP","ct":"FB","sp":0.0},{"mo":"2025-10","cat":"VP","ph":"VP","ct":"OT","sp":0.0},{"mo":"2025-10","cat":"VP","ph":"VP","ct":"SB","sp":0.0},{"mo":"2025-10","cat":"VP","ph":"VP","ct":"SG","sp":0.0},{"mo":"2025-11","cat":"VP","ph":"VP","ct":"DG","sp":0.0},{"mo":"2025-11","cat":"VP","ph":"VP","ct":"FB","sp":0.0},{"mo":"2025-11","cat":"VP","ph":"VP","ct":"OT","sp":0.0},{"mo":"2025-11","cat":"VP","ph":"VP","ct":"SB","sp":0.0},{"mo":"2025-11","cat":"VP","ph":"VP","ct":"SG","sp":0.0},{"mo":"2025-12","cat":"VP","ph":"VP","ct":"DG","sp":0.0},{"mo":"2025-12","cat":"VP","ph":"VP","ct":"FB","sp":0.0},{"mo":"2025-12","cat":"VP","ph":"VP","ct":"OT","sp":0.0},{"mo":"2025-12","cat":"VP","ph":"VP","ct":"SB","sp":0.0},{"mo":"2025-12","cat":"VP","ph":"VP","ct":"SG","sp":0.0}],"lv25":[{"mo":"2024-08","cat":"NSAT","ph":"NSAT","ct":"DG","lv":6306.0},{"mo":"2024-08","cat":"NSAT","ph":"NSAT","ct":"FB","lv":1967.0},{"mo":"2024-08","cat":"NSAT","ph":"NSAT","ct":"OT","lv":7501.0},{"mo":"2024-08","cat":"NSAT","ph":"NSAT","ct":"PM","lv":4920.0},{"mo":"2024-08","cat":"NSAT","ph":"NSAT","ct":"SB","lv":4.0},{"mo":"2024-08","cat":"NSAT","ph":"NSAT","ct":"SO","lv":1596.0},{"mo":"2024-09","cat":"NSAT","ph":"NSAT","ct":"DG","lv":31830.0},{"mo":"2024-09","cat":"NSAT","ph":"NSAT","ct":"FB","lv":19237.0},{"mo":"2024-09","cat":"NSAT","ph":"NSAT","ct":"OT","lv":39468.0},{"mo":"2024-09","cat":"NSAT","ph":"NSAT","ct":"PM","lv":48360.0},{"mo":"2024-09","cat":"NSAT","ph":"NSAT","ct":"SB","lv":16.0},{"mo":"2024-09","cat":"NSAT","ph":"NSAT","ct":"SO","lv":19783.0},{"mo":"2024-10","cat":"NSAT","ph":"NSAT","ct":"DG","lv":9004.0},{"mo":"2024-10","cat":"NSAT","ph":"NSAT","ct":"FB","lv":6737.0},{"mo":"2024-10","cat":"NSAT","ph":"NSAT","ct":"OT","lv":12194.0},{"mo":"2024-10","cat":"NSAT","ph":"NSAT","ct":"PM","lv":22896.0},{"mo":"2024-10","cat":"NSAT","ph":"NSAT","ct":"SB","lv":6.0},{"mo":"2024-10","cat":"NSAT","ph":"NSAT","ct":"SG","lv":40.0},{"mo":"2024-10","cat":"NSAT","ph":"NSAT","ct":"SO","lv":12741.0},{"mo":"2024-11","cat":"NSAT","ph":"NSAT 2","ct":"DG","lv":7927.0},{"mo":"2024-11","cat":"NSAT","ph":"NSAT 2","ct":"FB","lv":5097.0},{"mo":"2024-11","cat":"NSAT","ph":"NSAT 2","ct":"OT","lv":6212.0},{"mo":"2024-11","cat":"NSAT","ph":"NSAT 2","ct":"PM","lv":6766.0},{"mo":"2024-11","cat":"NSAT","ph":"NSAT 2","ct":"SB","lv":494.0},{"mo":"2024-11","cat":"NSAT","ph":"NSAT 2","ct":"SG","lv":128.0},{"mo":"2024-11","cat":"NSAT","ph":"NSAT 2","ct":"SO","lv":7046.0},{"mo":"2024-12","cat":"NSAT","ph":"NSAT 2","ct":"DG","lv":9164.0},{"mo":"2024-12","cat":"NSAT","ph":"NSAT 2","ct":"FB","lv":3778.0},{"mo":"2024-12","cat":"NSAT","ph":"NSAT 2","ct":"OT","lv":6962.0},{"mo":"2024-12","cat":"NSAT","ph":"NSAT 2","ct":"PM","lv":12526.0},{"mo":"2024-12","cat":"NSAT","ph":"NSAT 2","ct":"SB","lv":852.0},{"mo":"2024-12","cat":"NSAT","ph":"NSAT 2","ct":"SG","lv":4.0},{"mo":"2024-12","cat":"NSAT","ph":"NSAT 2","ct":"SO","lv":10387.0},{"mo":"2024-12","cat":"VP","ph":"VP","ct":"DG","lv":67.0},{"mo":"2024-12","cat":"VP","ph":"VP","ct":"FB","lv":2899.0},{"mo":"2024-12","cat":"VP","ph":"VP","ct":"OT","lv":81.0},{"mo":"2024-12","cat":"VP","ph":"VP","ct":"SB","lv":636.0},{"mo":"2024-12","cat":"VP","ph":"VP","ct":"SG","lv":417.0},{"mo":"2025-01","cat":"SAT","ph":"SAT 2","ct":"DG","lv":605.0},{"mo":"2025-01","cat":"SAT","ph":"SAT 2","ct":"FB","lv":585.0},{"mo":"2025-01","cat":"SAT","ph":"SAT 2","ct":"OT","lv":777.0},{"mo":"2025-01","cat":"SAT","ph":"SAT 2","ct":"PM","lv":829.0},{"mo":"2025-01","cat":"SAT","ph":"SAT 2","ct":"SB","lv":13.0},{"mo":"2025-01","cat":"SAT","ph":"SAT 2","ct":"SG","lv":4.0},{"mo":"2025-01","cat":"SAT","ph":"SAT 2","ct":"SO","lv":773.0},{"mo":"2025-01","cat":"SAT","ph":"SAT 3","ct":"FB","lv":1.0},{"mo":"2025-01","cat":"SAT","ph":"SAT 3","ct":"PM","lv":1.0},{"mo":"2025-01","cat":"SAT","ph":"SAT 3","ct":"SO","lv":1.0},{"mo":"2025-01","cat":"SAT","ph":"SAT Ph.1","ct":"DG","lv":4992.0},{"mo":"2025-01","cat":"SAT","ph":"SAT Ph.1","ct":"FB","lv":3655.0},{"mo":"2025-01","cat":"SAT","ph":"SAT Ph.1","ct":"OT","lv":6240.0},{"mo":"2025-01","cat":"SAT","ph":"SAT Ph.1","ct":"PM","lv":7712.0},{"mo":"2025-01","cat":"SAT","ph":"SAT Ph.1","ct":"SB","lv":105.0},{"mo":"2025-01","cat":"SAT","ph":"SAT Ph.1","ct":"SG","lv":21.0},{"mo":"2025-01","cat":"SAT","ph":"SAT Ph.1","ct":"SO","lv":6131.0},{"mo":"2025-01","cat":"VP","ph":"VP","ct":"DG","lv":2357.0},{"mo":"2025-01","cat":"VP","ph":"VP","ct":"FB","lv":14636.0},{"mo":"2025-01","cat":"VP","ph":"VP","ct":"OT","lv":3820.0},{"mo":"2025-01","cat":"VP","ph":"VP","ct":"SB","lv":5683.0},{"mo":"2025-01","cat":"VP","ph":"VP","ct":"SG","lv":2908.0},{"mo":"2025-02","cat":"SAT","ph":"SAT 2","ct":"DG","lv":2494.0},{"mo":"2025-02","cat":"SAT","ph":"SAT 2","ct":"FB","lv":3844.0},{"mo":"2025-02","cat":"SAT","ph":"SAT 2","ct":"OT","lv":5426.0},{"mo":"2025-02","cat":"SAT","ph":"SAT 2","ct":"PM","lv":8806.0},{"mo":"2025-02","cat":"SAT","ph":"SAT 2","ct":"SB","lv":127.0},{"mo":"2025-02","cat":"SAT","ph":"SAT 2","ct":"SG","lv":27.0},{"mo":"2025-02","cat":"SAT","ph":"SAT 2","ct":"SO","lv":4807.0},{"mo":"2025-02","cat":"SAT","ph":"SAT 3","ct":"DG","lv":76.0},{"mo":"2025-02","cat":"SAT","ph":"SAT 3","ct":"FB","lv":627.0},{"mo":"2025-02","cat":"SAT","ph":"SAT 3","ct":"OT","lv":130.0},{"mo":"2025-02","cat":"SAT","ph":"SAT 3","ct":"PM","lv":456.0},{"mo":"2025-02","cat":"SAT","ph":"SAT 3","ct":"SB","lv":15.0},{"mo":"2025-02","cat":"SAT","ph":"SAT 3","ct":"SG","lv":1.0},{"mo":"2025-02","cat":"SAT","ph":"SAT 3","ct":"SO","lv":325.0},{"mo":"2025-02","cat":"SAT","ph":"SAT 4","ct":"FB","lv":1.0},{"mo":"2025-02","cat":"SAT","ph":"SAT 4","ct":"PM","lv":1.0},{"mo":"2025-02","cat":"VP","ph":"VP","ct":"DG","lv":2223.0},{"mo":"2025-02","cat":"VP","ph":"VP","ct":"FB","lv":12907.0},{"mo":"2025-02","cat":"VP","ph":"VP","ct":"OT","lv":4103.0},{"mo":"2025-02","cat":"VP","ph":"VP","ct":"SB","lv":6295.0},{"mo":"2025-02","cat":"VP","ph":"VP","ct":"SG","lv":2538.0},{"mo":"2025-03","cat":"SAT","ph":"SAT 3","ct":"DG","lv":2582.0},{"mo":"2025-03","cat":"SAT","ph":"SAT 3","ct":"FB","lv":8596.0},{"mo":"2025-03","cat":"SAT","ph":"SAT 3","ct":"OT","lv":5181.0},{"mo":"2025-03","cat":"SAT","ph":"SAT 3","ct":"PM","lv":18662.0},{"mo":"2025-03","cat":"SAT","ph":"SAT 3","ct":"SB","lv":1817.0},{"mo":"2025-03","cat":"SAT","ph":"SAT 3","ct":"SG","lv":37.0},{"mo":"2025-03","cat":"SAT","ph":"SAT 3","ct":"SO","lv":12895.0},{"mo":"2025-03","cat":"VP","ph":"VP","ct":"DG","lv":2582.0},{"mo":"2025-03","cat":"VP","ph":"VP","ct":"FB","lv":43991.0},{"mo":"2025-03","cat":"VP","ph":"VP","ct":"OT","lv":2798.0},{"mo":"2025-03","cat":"VP","ph":"VP","ct":"SB","lv":26565.0},{"mo":"2025-03","cat":"VP","ph":"VP","ct":"SG","lv":17114.0},{"mo":"2025-04","cat":"SAT","ph":"SAT 3","ct":"DG","lv":752.0},{"mo":"2025-04","cat":"SAT","ph":"SAT 3","ct":"FB","lv":4069.0},{"mo":"2025-04","cat":"SAT","ph":"SAT 3","ct":"OT","lv":1304.0},{"mo":"2025-04","cat":"SAT","ph":"SAT 3","ct":"PM","lv":10047.0},{"mo":"2025-04","cat":"SAT","ph":"SAT 3","ct":"SB","lv":547.0},{"mo":"2025-04","cat":"SAT","ph":"SAT 3","ct":"SG","lv":2.0},{"mo":"2025-04","cat":"SAT","ph":"SAT 3","ct":"SO","lv":6282.0},{"mo":"2025-04","cat":"SAT","ph":"SAT 4","ct":"DG","lv":622.0},{"mo":"2025-04","cat":"SAT","ph":"SAT 4","ct":"FB","lv":4504.0},{"mo":"2025-04","cat":"SAT","ph":"SAT 4","ct":"OT","lv":339.0},{"mo":"2025-04","cat":"SAT","ph":"SAT 4","ct":"PM","lv":4638.0},{"mo":"2025-04","cat":"SAT","ph":"SAT 4","ct":"SB","lv":362.0},{"mo":"2025-04","cat":"SAT","ph":"SAT 4","ct":"SO","lv":3775.0},{"mo":"2025-04","cat":"SAT","ph":"SAT 5","ct":"PM","lv":1.0},{"mo":"2025-04","cat":"VP","ph":"VP","ct":"DG","lv":910.0},{"mo":"2025-04","cat":"VP","ph":"VP","ct":"FB","lv":51683.0},{"mo":"2025-04","cat":"VP","ph":"VP","ct":"OT","lv":494.0},{"mo":"2025-04","cat":"VP","ph":"VP","ct":"SB","lv":26111.0},{"mo":"2025-04","cat":"VP","ph":"VP","ct":"SG","lv":10264.0},{"mo":"2025-05","cat":"SAT","ph":"SAT 4","ct":"DG","lv":761.0},{"mo":"2025-05","cat":"SAT","ph":"SAT 4","ct":"FB","lv":4045.0},{"mo":"2025-05","cat":"SAT","ph":"SAT 4","ct":"OT","lv":308.0},{"mo":"2025-05","cat":"SAT","ph":"SAT 4","ct":"PM","lv":9349.0},{"mo":"2025-05","cat":"SAT","ph":"SAT 4","ct":"SB","lv":610.0},{"mo":"2025-05","cat":"SAT","ph":"SAT 4","ct":"SO","lv":8535.0},{"mo":"2025-05","cat":"SAT","ph":"SAT 5","ct":"DG","lv":1.0},{"mo":"2025-05","cat":"SAT","ph":"SAT 5","ct":"FB","lv":8.0},{"mo":"2025-05","cat":"SAT","ph":"SAT 5","ct":"PM","lv":33.0},{"mo":"2025-05","cat":"SAT","ph":"SAT 5","ct":"SO","lv":20.0},{"mo":"2025-05","cat":"VP","ph":"VP","ct":"DG","lv":384.0},{"mo":"2025-05","cat":"VP","ph":"VP","ct":"FB","lv":4805.0},{"mo":"2025-05","cat":"VP","ph":"VP","ct":"OT","lv":190.0},{"mo":"2025-05","cat":"VP","ph":"VP","ct":"SB","lv":26836.0},{"mo":"2025-05","cat":"VP","ph":"VP","ct":"SG","lv":5910.0},{"mo":"2025-06","cat":"SAT","ph":"SAT 5","ct":"FB","lv":19.0},{"mo":"2025-06","cat":"SAT","ph":"SAT 5","ct":"OT","lv":3.0},{"mo":"2025-06","cat":"SAT","ph":"SAT 5","ct":"PM","lv":9795.0},{"mo":"2025-06","cat":"SAT","ph":"SAT 5","ct":"SB","lv":2.0},{"mo":"2025-06","cat":"SAT","ph":"SAT 5","ct":"SO","lv":367.0},{"mo":"2025-06","cat":"VP","ph":"VP","ct":"DG","lv":161.0},{"mo":"2025-06","cat":"VP","ph":"VP","ct":"FB","lv":2302.0},{"mo":"2025-06","cat":"VP","ph":"VP","ct":"OT","lv":300.0},{"mo":"2025-06","cat":"VP","ph":"VP","ct":"SB","lv":20850.0},{"mo":"2025-06","cat":"VP","ph":"VP","ct":"SG","lv":3177.0},{"mo":"2025-07","cat":"SAT","ph":"SAT 5","ct":"PM","lv":0.0},{"mo":"2025-07","cat":"VP","ph":"VP","ct":"DG","lv":50.0},{"mo":"2025-07","cat":"VP","ph":"VP","ct":"FB","lv":396.0},{"mo":"2025-07","cat":"VP","ph":"VP","ct":"OT","lv":24.0},{"mo":"2025-07","cat":"VP","ph":"VP","ct":"SB","lv":12305.0},{"mo":"2025-07","cat":"VP","ph":"VP","ct":"SG","lv":264.0},{"mo":"2025-08","cat":"VP","ph":"VP","ct":"DG","lv":22.0},{"mo":"2025-08","cat":"VP","ph":"VP","ct":"FB","lv":373.0},{"mo":"2025-08","cat":"VP","ph":"VP","ct":"OT","lv":99.0},{"mo":"2025-08","cat":"VP","ph":"VP","ct":"SB","lv":853.0},{"mo":"2025-08","cat":"VP","ph":"VP","ct":"SG","lv":293.0},{"mo":"2025-09","cat":"VP","ph":"VP","ct":"DG","lv":25.0},{"mo":"2025-09","cat":"VP","ph":"VP","ct":"FB","lv":190.0},{"mo":"2025-09","cat":"VP","ph":"VP","ct":"OT","lv":10.0},{"mo":"2025-09","cat":"VP","ph":"VP","ct":"SB","lv":90.0},{"mo":"2025-09","cat":"VP","ph":"VP","ct":"SG","lv":57.0},{"mo":"2025-10","cat":"VP","ph":"VP","ct":"DG","lv":10.0},{"mo":"2025-10","cat":"VP","ph":"VP","ct":"FB","lv":102.0},{"mo":"2025-10","cat":"VP","ph":"VP","ct":"OT","lv":2.0},{"mo":"2025-10","cat":"VP","ph":"VP","ct":"SB","lv":9.0},{"mo":"2025-10","cat":"VP","ph":"VP","ct":"SG","lv":4.0},{"mo":"2025-11","cat":"VP","ph":"VP","ct":"DG","lv":15.0},{"mo":"2025-11","cat":"VP","ph":"VP","ct":"FB","lv":224.0},{"mo":"2025-11","cat":"VP","ph":"VP","ct":"OT","lv":1.0},{"mo":"2025-11","cat":"VP","ph":"VP","ct":"SB","lv":11.0},{"mo":"2025-11","cat":"VP","ph":"VP","ct":"SG","lv":3.0},{"mo":"2025-12","cat":"VP","ph":"VP","ct":"DG","lv":5.0},{"mo":"2025-12","cat":"VP","ph":"VP","ct":"FB","lv":55.0},{"mo":"2025-12","cat":"VP","ph":"VP","ct":"OT","lv":2.0},{"mo":"2025-12","cat":"VP","ph":"VP","ct":"SB","lv":2.0},{"mo":"2025-12","cat":"VP","ph":"VP","ct":"SG","lv":3.0}],"cv25l":[{"mo":"2024-07","cat":"NSAT","ct":"DG","cv":1},{"mo":"2024-07","cat":"NSAT","ct":"PM","cv":2},{"mo":"2024-07","cat":"NSAT","ct":"SO","cv":1},{"mo":"2024-08","cat":"NSAT","ct":"DG","cv":277},{"mo":"2024-08","cat":"NSAT","ct":"FB","cv":68},{"mo":"2024-08","cat":"NSAT","ct":"OT","cv":349},{"mo":"2024-08","cat":"NSAT","ct":"PM","cv":236},{"mo":"2024-08","cat":"NSAT","ct":"SO","cv":129},{"mo":"2024-09","cat":"NSAT","ct":"DG","cv":1045},{"mo":"2024-09","cat":"NSAT","ct":"FB","cv":514},{"mo":"2024-09","cat":"NSAT","ct":"OT","cv":1462},{"mo":"2024-09","cat":"NSAT","ct":"PM","cv":2048},{"mo":"2024-09","cat":"NSAT","ct":"SO","cv":1143},{"mo":"2024-10","cat":"NSAT","ct":"DG","cv":294},{"mo":"2024-10","cat":"NSAT","ct":"FB","cv":163},{"mo":"2024-10","cat":"NSAT","ct":"OT","cv":389},{"mo":"2024-10","cat":"NSAT","ct":"PM","cv":796},{"mo":"2024-10","cat":"NSAT","ct":"SB","cv":3},{"mo":"2024-10","cat":"NSAT","ct":"SG","cv":3},{"mo":"2024-10","cat":"NSAT","ct":"SO","cv":828},{"mo":"2024-11","cat":"NSAT","ct":"DG","cv":330},{"mo":"2024-11","cat":"NSAT","ct":"FB","cv":251},{"mo":"2024-11","cat":"NSAT","ct":"OT","cv":249},{"mo":"2024-11","cat":"NSAT","ct":"PM","cv":296},{"mo":"2024-11","cat":"NSAT","ct":"SB","cv":48},{"mo":"2024-11","cat":"NSAT","ct":"SG","cv":15},{"mo":"2024-11","cat":"NSAT","ct":"SO","cv":651},{"mo":"2024-12","cat":"NSAT","ct":"DG","cv":309},{"mo":"2024-12","cat":"NSAT","ct":"FB","cv":170},{"mo":"2024-12","cat":"NSAT","ct":"OT","cv":262},{"mo":"2024-12","cat":"NSAT","ct":"PM","cv":422},{"mo":"2024-12","cat":"NSAT","ct":"SB","cv":103},{"mo":"2024-12","cat":"NSAT","ct":"SG","cv":1},{"mo":"2024-12","cat":"NSAT","ct":"SO","cv":1039},{"mo":"2024-12","cat":"VP","ct":"DG","cv":4},{"mo":"2024-12","cat":"VP","ct":"FB","cv":64},{"mo":"2024-12","cat":"VP","ct":"SB","cv":99},{"mo":"2024-12","cat":"VP","ct":"SG","cv":36},{"mo":"2025-01","cat":"SAT","ct":"DG","cv":288},{"mo":"2025-01","cat":"SAT","ct":"FB","cv":367},{"mo":"2025-01","cat":"SAT","ct":"OT","cv":317},{"mo":"2025-01","cat":"SAT","ct":"PM","cv":1092},{"mo":"2025-01","cat":"SAT","ct":"SB","cv":30},{"mo":"2025-01","cat":"SAT","ct":"SG","cv":9},{"mo":"2025-01","cat":"SAT","ct":"SO","cv":959},{"mo":"2025-01","cat":"VP","ct":"DG","cv":134},{"mo":"2025-01","cat":"VP","ct":"FB","cv":240},{"mo":"2025-01","cat":"VP","ct":"OT","cv":34},{"mo":"2025-01","cat":"VP","ct":"SB","cv":846},{"mo":"2025-01","cat":"VP","ct":"SG","cv":160},{"mo":"2025-02","cat":"SAT","ct":"DG","cv":140},{"mo":"2025-02","cat":"SAT","ct":"FB","cv":251},{"mo":"2025-02","cat":"SAT","ct":"OT","cv":248},{"mo":"2025-02","cat":"SAT","ct":"PM","cv":1046},{"mo":"2025-02","cat":"SAT","ct":"SB","cv":34},{"mo":"2025-02","cat":"SAT","ct":"SG","cv":5},{"mo":"2025-02","cat":"SAT","ct":"SO","cv":588},{"mo":"2025-02","cat":"VP","ct":"DG","cv":138},{"mo":"2025-02","cat":"VP","ct":"FB","cv":95},{"mo":"2025-02","cat":"VP","ct":"OT","cv":29},{"mo":"2025-02","cat":"VP","ct":"SB","cv":1075},{"mo":"2025-02","cat":"VP","ct":"SG","cv":209},{"mo":"2025-03","cat":"SAT","ct":"DG","cv":173},{"mo":"2025-03","cat":"SAT","ct":"FB","cv":563},{"mo":"2025-03","cat":"SAT","ct":"OT","cv":296},{"mo":"2025-03","cat":"SAT","ct":"PM","cv":2820},{"mo":"2025-03","cat":"SAT","ct":"SB","cv":226},{"mo":"2025-03","cat":"SAT","ct":"SG","cv":11},{"mo":"2025-03","cat":"SAT","ct":"SO","cv":2199},{"mo":"2025-03","cat":"VP","ct":"DG","cv":194},{"mo":"2025-03","cat":"VP","ct":"FB","cv":1075},{"mo":"2025-03","cat":"VP","ct":"OT","cv":10},{"mo":"2025-03","cat":"VP","ct":"SB","cv":4634},{"mo":"2025-03","cat":"VP","ct":"SG","cv":1353},{"mo":"2025-04","cat":"SAT","ct":"DG","cv":56},{"mo":"2025-04","cat":"SAT","ct":"FB","cv":463},{"mo":"2025-04","cat":"SAT","ct":"OT","cv":46},{"mo":"2025-04","cat":"SAT","ct":"PM","cv":2035},{"mo":"2025-04","cat":"SAT","ct":"SB","cv":85},{"mo":"2025-04","cat":"SAT","ct":"SO","cv":1819},{"mo":"2025-04","cat":"VP","ct":"DG","cv":40},{"mo":"2025-04","cat":"VP","ct":"FB","cv":548},{"mo":"2025-04","cat":"VP","ct":"OT","cv":7},{"mo":"2025-04","cat":"VP","ct":"SB","cv":3632},{"mo":"2025-04","cat":"VP","ct":"SG","cv":652},{"mo":"2025-05","cat":"SAT","ct":"DG","cv":29},{"mo":"2025-05","cat":"SAT","ct":"FB","cv":227},{"mo":"2025-05","cat":"SAT","ct":"OT","cv":8},{"mo":"2025-05","cat":"SAT","ct":"PM","cv":1127},{"mo":"2025-05","cat":"SAT","ct":"SB","cv":53},{"mo":"2025-05","cat":"SAT","ct":"SO","cv":1541},{"mo":"2025-05","cat":"VP","ct":"DG","cv":15},{"mo":"2025-05","cat":"VP","ct":"FB","cv":531},{"mo":"2025-05","cat":"VP","ct":"OT","cv":5},{"mo":"2025-05","cat":"VP","ct":"SB","cv":3802},{"mo":"2025-05","cat":"VP","ct":"SG","cv":350},{"mo":"2025-06","cat":"SAT","ct":"FB","cv":5},{"mo":"2025-06","cat":"SAT","ct":"PM","cv":1200},{"mo":"2025-06","cat":"SAT","ct":"SO","cv":73},{"mo":"2025-06","cat":"VP","ct":"DG","cv":17},{"mo":"2025-06","cat":"VP","ct":"FB","cv":236},{"mo":"2025-06","cat":"VP","ct":"OT","cv":1},{"mo":"2025-06","cat":"VP","ct":"SB","cv":2434},{"mo":"2025-06","cat":"VP","ct":"SG","cv":143},{"mo":"2025-07","cat":"VP","ct":"DG","cv":1},{"mo":"2025-07","cat":"VP","ct":"FB","cv":17},{"mo":"2025-07","cat":"VP","ct":"SB","cv":991},{"mo":"2025-07","cat":"VP","ct":"SG","cv":27},{"mo":"2025-08","cat":"VP","ct":"DG","cv":1},{"mo":"2025-08","cat":"VP","ct":"FB","cv":3},{"mo":"2025-08","cat":"VP","ct":"SB","cv":53},{"mo":"2025-08","cat":"VP","ct":"SG","cv":17},{"mo":"2025-09","cat":"VP","ct":"DG","cv":1},{"mo":"2025-09","cat":"VP","ct":"SB","cv":5},{"mo":"2025-09","cat":"VP","ct":"SG","cv":1},{"mo":"2025-10","cat":"VP","ct":"DG","cv":3},{"mo":"2025-10","cat":"VP","ct":"FB","cv":1},{"mo":"2025-11","cat":"VP","ct":"DG","cv":2},{"mo":"2025-11","cat":"VP","ct":"FB","cv":1},{"mo":"2025-12","cat":"VP","ct":"DG","cv":3},{"mo":"2026-01","cat":"VP","ct":"DG","cv":2},{"mo":"2026-01","cat":"VP","ct":"FB","cv":1}],"cv25j":[{"mo":"2024-09","cat":"NSAT","ct":"DG","cv":6},{"mo":"2024-09","cat":"NSAT","ct":"FB","cv":5},{"mo":"2024-09","cat":"NSAT","ct":"OT","cv":3},{"mo":"2024-09","cat":"NSAT","ct":"PM","cv":11},{"mo":"2024-09","cat":"NSAT","ct":"SO","cv":8},{"mo":"2024-10","cat":"NSAT","ct":"DG","cv":78},{"mo":"2024-10","cat":"NSAT","ct":"FB","cv":38},{"mo":"2024-10","cat":"NSAT","ct":"OT","cv":80},{"mo":"2024-10","cat":"NSAT","ct":"PM","cv":233},{"mo":"2024-10","cat":"NSAT","ct":"SG","cv":1},{"mo":"2024-10","cat":"NSAT","ct":"SO","cv":218},{"mo":"2024-11","cat":"NSAT","ct":"DG","cv":191},{"mo":"2024-11","cat":"NSAT","ct":"FB","cv":97},{"mo":"2024-11","cat":"NSAT","ct":"OT","cv":244},{"mo":"2024-11","cat":"NSAT","ct":"PM","cv":553},{"mo":"2024-11","cat":"NSAT","ct":"SB","cv":2},{"mo":"2024-11","cat":"NSAT","ct":"SG","cv":2},{"mo":"2024-11","cat":"NSAT","ct":"SO","cv":464},{"mo":"2024-12","cat":"NSAT","ct":"DG","cv":299},{"mo":"2024-12","cat":"NSAT","ct":"FB","cv":177},{"mo":"2024-12","cat":"NSAT","ct":"OT","cv":335},{"mo":"2024-12","cat":"NSAT","ct":"PM","cv":599},{"mo":"2024-12","cat":"NSAT","ct":"SB","cv":55},{"mo":"2024-12","cat":"NSAT","ct":"SG","cv":6},{"mo":"2024-12","cat":"NSAT","ct":"SO","cv":866},{"mo":"2024-12","cat":"VP","ct":"DG","cv":1},{"mo":"2024-12","cat":"VP","ct":"FB","cv":20},{"mo":"2024-12","cat":"VP","ct":"SB","cv":34},{"mo":"2024-12","cat":"VP","ct":"SG","cv":11},{"mo":"2025-01","cat":"NSAT","ct":"DG","cv":270},{"mo":"2025-01","cat":"NSAT","ct":"FB","cv":137},{"mo":"2025-01","cat":"NSAT","ct":"OT","cv":299},{"mo":"2025-01","cat":"NSAT","ct":"PM","cv":403},{"mo":"2025-01","cat":"NSAT","ct":"SB","cv":33},{"mo":"2025-01","cat":"NSAT","ct":"SG","cv":3},{"mo":"2025-01","cat":"NSAT","ct":"SO","cv":550},{"mo":"2025-01","cat":"SAT","ct":"DG","cv":103},{"mo":"2025-01","cat":"SAT","ct":"FB","cv":164},{"mo":"2025-01","cat":"SAT","ct":"OT","cv":74},{"mo":"2025-01","cat":"SAT","ct":"PM","cv":542},{"mo":"2025-01","cat":"SAT","ct":"SB","cv":19},{"mo":"2025-01","cat":"SAT","ct":"SG","cv":4},{"mo":"2025-01","cat":"SAT","ct":"SO","cv":493},{"mo":"2025-01","cat":"VP","ct":"DG","cv":55},{"mo":"2025-01","cat":"VP","ct":"FB","cv":122},{"mo":"2025-01","cat":"VP","ct":"OT","cv":15},{"mo":"2025-01","cat":"VP","ct":"SB","cv":427},{"mo":"2025-01","cat":"VP","ct":"SG","cv":67},{"mo":"2025-02","cat":"NSAT","ct":"DG","cv":126},{"mo":"2025-02","cat":"NSAT","ct":"FB","cv":77},{"mo":"2025-02","cat":"NSAT","ct":"OT","cv":179},{"mo":"2025-02","cat":"NSAT","ct":"PM","cv":214},{"mo":"2025-02","cat":"NSAT","ct":"SB","cv":11},{"mo":"2025-02","cat":"NSAT","ct":"SG","cv":1},{"mo":"2025-02","cat":"NSAT","ct":"SO","cv":202},{"mo":"2025-02","cat":"SAT","ct":"DG","cv":85},{"mo":"2025-02","cat":"SAT","ct":"FB","cv":126},{"mo":"2025-02","cat":"SAT","ct":"OT","cv":100},{"mo":"2025-02","cat":"SAT","ct":"PM","cv":635},{"mo":"2025-02","cat":"SAT","ct":"SB","cv":22},{"mo":"2025-02","cat":"SAT","ct":"SG","cv":4},{"mo":"2025-02","cat":"SAT","ct":"SO","cv":404},{"mo":"2025-02","cat":"VP","ct":"DG","cv":61},{"mo":"2025-02","cat":"VP","ct":"FB","cv":68},{"mo":"2025-02","cat":"VP","ct":"OT","cv":15},{"mo":"2025-02","cat":"VP","ct":"SB","cv":570},{"mo":"2025-02","cat":"VP","ct":"SG","cv":95},{"mo":"2025-03","cat":"NSAT","ct":"DG","cv":304},{"mo":"2025-03","cat":"NSAT","ct":"FB","cv":148},{"mo":"2025-03","cat":"NSAT","ct":"OT","cv":410},{"mo":"2025-03","cat":"NSAT","ct":"PM","cv":487},{"mo":"2025-03","cat":"NSAT","ct":"SB","cv":17},{"mo":"2025-03","cat":"NSAT","ct":"SG","cv":1},{"mo":"2025-03","cat":"NSAT","ct":"SO","cv":411},{"mo":"2025-03","cat":"SAT","ct":"DG","cv":166},{"mo":"2025-03","cat":"SAT","ct":"FB","cv":348},{"mo":"2025-03","cat":"SAT","ct":"OT","cv":294},{"mo":"2025-03","cat":"SAT","ct":"PM","cv":2024},{"mo":"2025-03","cat":"SAT","ct":"SB","cv":126},{"mo":"2025-03","cat":"SAT","ct":"SG","cv":11},{"mo":"2025-03","cat":"SAT","ct":"SO","cv":1537},{"mo":"2025-03","cat":"VP","ct":"DG","cv":171},{"mo":"2025-03","cat":"VP","ct":"FB","cv":641},{"mo":"2025-03","cat":"VP","ct":"OT","cv":25},{"mo":"2025-03","cat":"VP","ct":"SB","cv":3181},{"mo":"2025-03","cat":"VP","ct":"SG","cv":764},{"mo":"2025-04","cat":"NSAT","ct":"DG","cv":223},{"mo":"2025-04","cat":"NSAT","ct":"FB","cv":106},{"mo":"2025-04","cat":"NSAT","ct":"OT","cv":275},{"mo":"2025-04","cat":"NSAT","ct":"PM","cv":285},{"mo":"2025-04","cat":"NSAT","ct":"SB","cv":10},{"mo":"2025-04","cat":"NSAT","ct":"SG","cv":2},{"mo":"2025-04","cat":"NSAT","ct":"SO","cv":239},{"mo":"2025-04","cat":"SAT","ct":"DG","cv":111},{"mo":"2025-04","cat":"SAT","ct":"FB","cv":419},{"mo":"2025-04","cat":"SAT","ct":"OT","cv":151},{"mo":"2025-04","cat":"SAT","ct":"PM","cv":2261},{"mo":"2025-04","cat":"SAT","ct":"SB","cv":120},{"mo":"2025-04","cat":"SAT","ct":"SO","cv":1883},{"mo":"2025-04","cat":"VP","ct":"DG","cv":95},{"mo":"2025-04","cat":"VP","ct":"FB","cv":651},{"mo":"2025-04","cat":"VP","ct":"OT","cv":9},{"mo":"2025-04","cat":"VP","ct":"SB","cv":3559},{"mo":"2025-04","cat":"VP","ct":"SG","cv":841},{"mo":"2025-05","cat":"NSAT","ct":"DG","cv":165},{"mo":"2025-05","cat":"NSAT","ct":"FB","cv":99},{"mo":"2025-05","cat":"NSAT","ct":"OT","cv":238},{"mo":"2025-05","cat":"NSAT","ct":"PM","cv":241},{"mo":"2025-05","cat":"NSAT","ct":"SB","cv":4},{"mo":"2025-05","cat":"NSAT","ct":"SO","cv":183},{"mo":"2025-05","cat":"SAT","ct":"DG","cv":73},{"mo":"2025-05","cat":"SAT","ct":"FB","cv":403},{"mo":"2025-05","cat":"SAT","ct":"OT","cv":88},{"mo":"2025-05","cat":"SAT","ct":"PM","cv":1404},{"mo":"2025-05","cat":"SAT","ct":"SB","cv":72},{"mo":"2025-05","cat":"SAT","ct":"SG","cv":3},{"mo":"2025-05","cat":"SAT","ct":"SO","cv":1774},{"mo":"2025-05","cat":"VP","ct":"DG","cv":48},{"mo":"2025-05","cat":"VP","ct":"FB","cv":603},{"mo":"2025-05","cat":"VP","ct":"OT","cv":12},{"mo":"2025-05","cat":"VP","ct":"SB","cv":3938},{"mo":"2025-05","cat":"VP","ct":"SG","cv":536},{"mo":"2025-06","cat":"NSAT","ct":"DG","cv":104},{"mo":"2025-06","cat":"NSAT","ct":"FB","cv":85},{"mo":"2025-06","cat":"NSAT","ct":"OT","cv":172},{"mo":"2025-06","cat":"NSAT","ct":"PM","cv":143},{"mo":"2025-06","cat":"NSAT","ct":"SB","cv":4},{"mo":"2025-06","cat":"NSAT","ct":"SG","cv":1},{"mo":"2025-06","cat":"NSAT","ct":"SO","cv":87},{"mo":"2025-06","cat":"SAT","ct":"DG","cv":27},{"mo":"2025-06","cat":"SAT","ct":"FB","cv":110},{"mo":"2025-06","cat":"SAT","ct":"OT","cv":39},{"mo":"2025-06","cat":"SAT","ct":"PM","cv":1117},{"mo":"2025-06","cat":"SAT","ct":"SB","cv":19},{"mo":"2025-06","cat":"SAT","ct":"SO","cv":348},{"mo":"2025-06","cat":"VP","ct":"DG","cv":37},{"mo":"2025-06","cat":"VP","ct":"FB","cv":360},{"mo":"2025-06","cat":"VP","ct":"OT","cv":3},{"mo":"2025-06","cat":"VP","ct":"SB","cv":2761},{"mo":"2025-06","cat":"VP","ct":"SG","cv":280},{"mo":"2025-07","cat":"NSAT","ct":"DG","cv":61},{"mo":"2025-07","cat":"NSAT","ct":"FB","cv":38},{"mo":"2025-07","cat":"NSAT","ct":"OT","cv":90},{"mo":"2025-07","cat":"NSAT","ct":"PM","cv":68},{"mo":"2025-07","cat":"NSAT","ct":"SB","cv":2},{"mo":"2025-07","cat":"NSAT","ct":"SG","cv":1},{"mo":"2025-07","cat":"NSAT","ct":"SO","cv":42},{"mo":"2025-07","cat":"SAT","ct":"DG","cv":6},{"mo":"2025-07","cat":"SAT","ct":"FB","cv":35},{"mo":"2025-07","cat":"SAT","ct":"OT","cv":22},{"mo":"2025-07","cat":"SAT","ct":"PM","cv":302},{"mo":"2025-07","cat":"SAT","ct":"SB","cv":6},{"mo":"2025-07","cat":"SAT","ct":"SO","cv":98},{"mo":"2025-07","cat":"VP","ct":"DG","cv":14},{"mo":"2025-07","cat":"VP","ct":"FB","cv":79},{"mo":"2025-07","cat":"VP","ct":"OT","cv":2},{"mo":"2025-07","cat":"VP","ct":"SB","cv":1392},{"mo":"2025-07","cat":"VP","ct":"SG","cv":117},{"mo":"2025-08","cat":"NSAT","ct":"DG","cv":17},{"mo":"2025-08","cat":"NSAT","ct":"FB","cv":18},{"mo":"2025-08","cat":"NSAT","ct":"OT","cv":33},{"mo":"2025-08","cat":"NSAT","ct":"PM","cv":35},{"mo":"2025-08","cat":"NSAT","ct":"SO","cv":27},{"mo":"2025-08","cat":"SAT","ct":"DG","cv":4},{"mo":"2025-08","cat":"SAT","ct":"FB","cv":21},{"mo":"2025-08","cat":"SAT","ct":"OT","cv":9},{"mo":"2025-08","cat":"SAT","ct":"PM","cv":68},{"mo":"2025-08","cat":"SAT","ct":"SB","cv":2},{"mo":"2025-08","cat":"SAT","ct":"SO","cv":54},{"mo":"2025-08","cat":"VP","ct":"DG","cv":7},{"mo":"2025-08","cat":"VP","ct":"FB","cv":35},{"mo":"2025-08","cat":"VP","ct":"SB","cv":275},{"mo":"2025-08","cat":"VP","ct":"SG","cv":34},{"mo":"2025-09","cat":"NSAT","ct":"DG","cv":67},{"mo":"2025-09","cat":"NSAT","ct":"FB","cv":29},{"mo":"2025-09","cat":"NSAT","ct":"OT","cv":58},{"mo":"2025-09","cat":"NSAT","ct":"PM","cv":114},{"mo":"2025-09","cat":"NSAT","ct":"SB","cv":9},{"mo":"2025-09","cat":"NSAT","ct":"SO","cv":123},{"mo":"2025-09","cat":"SAT","ct":"DG","cv":30},{"mo":"2025-09","cat":"SAT","ct":"FB","cv":55},{"mo":"2025-09","cat":"SAT","ct":"OT","cv":23},{"mo":"2025-09","cat":"SAT","ct":"PM","cv":352},{"mo":"2025-09","cat":"SAT","ct":"SB","cv":20},{"mo":"2025-09","cat":"SAT","ct":"SG","cv":1},{"mo":"2025-09","cat":"SAT","ct":"SO","cv":215},{"mo":"2025-09","cat":"VP","ct":"DG","cv":18},{"mo":"2025-09","cat":"VP","ct":"FB","cv":56},{"mo":"2025-09","cat":"VP","ct":"OT","cv":2},{"mo":"2025-09","cat":"VP","ct":"SB","cv":557},{"mo":"2025-09","cat":"VP","ct":"SG","cv":54},{"mo":"2025-10","cat":"NSAT","ct":"DG","cv":51},{"mo":"2025-10","cat":"NSAT","ct":"FB","cv":14},{"mo":"2025-10","cat":"NSAT","ct":"OT","cv":32},{"mo":"2025-10","cat":"NSAT","ct":"PM","cv":65},{"mo":"2025-10","cat":"NSAT","ct":"SB","cv":2},{"mo":"2025-10","cat":"NSAT","ct":"SG","cv":1},{"mo":"2025-10","cat":"NSAT","ct":"SO","cv":58},{"mo":"2025-10","cat":"SAT","ct":"DG","cv":9},{"mo":"2025-10","cat":"SAT","ct":"FB","cv":31},{"mo":"2025-10","cat":"SAT","ct":"OT","cv":21},{"mo":"2025-10","cat":"SAT","ct":"PM","cv":148},{"mo":"2025-10","cat":"SAT","ct":"SB","cv":3},{"mo":"2025-10","cat":"SAT","ct":"SG","cv":1},{"mo":"2025-10","cat":"SAT","ct":"SO","cv":70},{"mo":"2025-10","cat":"VP","ct":"DG","cv":7},{"mo":"2025-10","cat":"VP","ct":"FB","cv":30},{"mo":"2025-10","cat":"VP","ct":"OT","cv":1},{"mo":"2025-10","cat":"VP","ct":"SB","cv":196},{"mo":"2025-10","cat":"VP","ct":"SG","cv":25},{"mo":"2025-11","cat":"NSAT","ct":"DG","cv":106},{"mo":"2025-11","cat":"NSAT","ct":"FB","cv":30},{"mo":"2025-11","cat":"NSAT","ct":"OT","cv":76},{"mo":"2025-11","cat":"NSAT","ct":"PM","cv":107},{"mo":"2025-11","cat":"NSAT","ct":"SB","cv":1},{"mo":"2025-11","cat":"NSAT","ct":"SO","cv":103},{"mo":"2025-11","cat":"SAT","ct":"DG","cv":17},{"mo":"2025-11","cat":"SAT","ct":"FB","cv":44},{"mo":"2025-11","cat":"SAT","ct":"OT","cv":32},{"mo":"2025-11","cat":"SAT","ct":"PM","cv":145},{"mo":"2025-11","cat":"SAT","ct":"SB","cv":7},{"mo":"2025-11","cat":"SAT","ct":"SO","cv":90},{"mo":"2025-11","cat":"VP","ct":"DG","cv":7},{"mo":"2025-11","cat":"VP","ct":"FB","cv":39},{"mo":"2025-11","cat":"VP","ct":"OT","cv":1},{"mo":"2025-11","cat":"VP","ct":"SB","cv":216},{"mo":"2025-11","cat":"VP","ct":"SG","cv":33},{"mo":"2025-12","cat":"NSAT","ct":"DG","cv":129},{"mo":"2025-12","cat":"NSAT","ct":"FB","cv":50},{"mo":"2025-12","cat":"NSAT","ct":"OT","cv":136},{"mo":"2025-12","cat":"NSAT","ct":"PM","cv":168},{"mo":"2025-12","cat":"NSAT","ct":"SB","cv":3},{"mo":"2025-12","cat":"NSAT","ct":"SO","cv":145},{"mo":"2025-12","cat":"SAT","ct":"DG","cv":34},{"mo":"2025-12","cat":"SAT","ct":"FB","cv":80},{"mo":"2025-12","cat":"SAT","ct":"OT","cv":46},{"mo":"2025-12","cat":"SAT","ct":"PM","cv":222},{"mo":"2025-12","cat":"SAT","ct":"SB","cv":10},{"mo":"2025-12","cat":"SAT","ct":"SG","cv":1},{"mo":"2025-12","cat":"SAT","ct":"SO","cv":149},{"mo":"2025-12","cat":"VP","ct":"DG","cv":21},{"mo":"2025-12","cat":"VP","ct":"FB","cv":82},{"mo":"2025-12","cat":"VP","ct":"SB","cv":322},{"mo":"2025-12","cat":"VP","ct":"SG","cv":57},{"mo":"2026-01","cat":"NSAT","ct":"DG","cv":59},{"mo":"2026-01","cat":"NSAT","ct":"FB","cv":18},{"mo":"2026-01","cat":"NSAT","ct":"OT","cv":51},{"mo":"2026-01","cat":"NSAT","ct":"PM","cv":74},{"mo":"2026-01","cat":"NSAT","ct":"SB","cv":1},{"mo":"2026-01","cat":"NSAT","ct":"SO","cv":65},{"mo":"2026-01","cat":"SAT","ct":"DG","cv":21},{"mo":"2026-01","cat":"SAT","ct":"FB","cv":40},{"mo":"2026-01","cat":"SAT","ct":"OT","cv":16},{"mo":"2026-01","cat":"SAT","ct":"PM","cv":100},{"mo":"2026-01","cat":"SAT","ct":"SB","cv":2},{"mo":"2026-01","cat":"SAT","ct":"SO","cv":64},{"mo":"2026-01","cat":"VP","ct":"DG","cv":13},{"mo":"2026-01","cat":"VP","ct":"FB","cv":26},{"mo":"2026-01","cat":"VP","ct":"OT","cv":1},{"mo":"2026-01","cat":"VP","ct":"SB","cv":143},{"mo":"2026-01","cat":"VP","ct":"SG","cv":34}],"ct_names":{"SB":"Search Brand","PM":"Pmax","FB":"Facebook","DG":"Demand Gen","YT":"YouTube","SG":"Search Generic","SO":"Search Other","OT":"Other","AP":"App Campaign"},"ytd25_end":"2025-05"};
+// Expand CT codes to names
+const CTN=R.ct_names;
+const CAT_FULL={'NSAT':'NSAT','SAT':'SAT','VP':'Vidyapeeth Admission'};
+const CAT_COL={'NSAT':'#1a56db','SAT':'#d9480f','VP':'#6d28d9'};
+const CT_COL={'SB':'#1a56db','PM':'#0891b2','FB':'#6d28d9','DG':'#b45309','YT':'#dc2626','SG':'#059669','SO':'#475569','OT':'#94a3b8','AP':'#65a30d'};
+const CAT_PCLS={'NSAT':'cp-n','SAT':'cp-s','VP':'cp-v'};
+const YTD25='2025-05'; // last month in YTD range for AY25
+
+// ── FILTER STATE ─────────────────────────
+let FS={period:'ytd',cat:'',ph:'',ct:'',d1:'',d2:'',dt:'l'};
+
+function setPeriod(p,btn){
+  FS.period=p;
+  document.querySelectorAll('.ptb').forEach(b=>b.classList.remove('act'));
+  btn.classList.add('act');
+  const pi=document.getElementById('pinfo');
+  if(p==='ytd'){
+    pi.innerHTML='<span><div class="pdot" style="background:var(--bl)"></div><b>TY:</b>&nbsp;AY 26-27 — Jul 2025 to May 2026</span><span><div class="pdot" style="background:var(--i3)"></div><b>LY (YTD):</b>&nbsp;AY 25-26 — Jul 2024 to May 2025</span><span class="pnote">Conversions de-duplicated · 1 reg_no = 1 conversion</span>';
+  } else {
+    pi.innerHTML='<span><div class="pdot" style="background:var(--bl)"></div><b>TY:</b>&nbsp;AY 26-27 — Full available data</span><span><div class="pdot" style="background:var(--i3)"></div><b>LY:</b>&nbsp;AY 25-26 — Full year</span><span class="pnote">Conversions de-duplicated · 1 reg_no = 1 conversion</span>';
+  }
+  renderAll();
+}
+
+function setDT(t){
+  FS.dt=t;
+  document.getElementById('dt-l').classList.toggle('act',t==='l');
+  document.getElementById('dt-j').classList.toggle('act',t==='j');
+  renderAll();
+}
+
+function applyF(){
+  FS.cat=document.getElementById('f-cat').value;
+  FS.ph=document.getElementById('f-ph').value;
+  FS.ct=document.getElementById('f-ct').value;
+  FS.d1=document.getElementById('f-d1').value;
+  FS.d2=document.getElementById('f-d2').value;
+  const a=FS.cat||FS.ph||FS.ct||FS.d1||FS.d2;
+  document.getElementById('fbadge').style.display=a?'inline-block':'none';
+  renderAll();
+}
+
+function resetF(){
+  ['f-cat','f-ph','f-ct','f-d1','f-d2'].forEach(id=>document.getElementById(id).value='');
+  FS={...FS,cat:'',ph:'',ct:'',d1:'',d2:''};
+  document.getElementById('fbadge').style.display='none';
+  renderAll();
+}
+
+// ── COMPUTE ENGINE ────────────────────────
+function compute(){
+  const isYTD=FS.period==='ytd';
+  // convert date filter to month strings
+  const mo1=FS.d1?FS.d1.slice(0,7):'';
+  const mo2=FS.d2?FS.d2.slice(0,7):'';
+  // for LY: shift date filter back 1 year
+  const lmo1=mo1?shiftMo(mo1,-12):'';
+  const lmo2=mo2?shiftMo(mo2,-12):'';
+
+  const f26sp=R.sp26.filter(r=>filterRow(r,FS.cat,FS.ph,FS.ct,mo1,mo2,'mo'));
+  const f26lv=R.lv26.filter(r=>filterRow(r,FS.cat,FS.ph,FS.ct,mo1,mo2,'mo'));
+  const cvKey=FS.dt==='l'?'cv26l':'cv26j';
+  const f26cv=R[cvKey].filter(r=>filterCVRow(r,FS.cat,FS.ct,mo1,mo2));
+
+  const f25sp=R.sp25.filter(r=>filterRow(r,FS.cat,FS.ph,FS.ct,lmo1,lmo2,'mo',isYTD?YTD25:null));
+  const f25lv=R.lv25.filter(r=>filterRow(r,FS.cat,FS.ph,FS.ct,lmo1,lmo2,'mo',isYTD?YTD25:null));
+  const cvKey25=FS.dt==='l'?'cv25l':'cv25j';
+  const f25cv=R[cvKey25].filter(r=>filterCVRow(r,FS.cat,FS.ct,lmo1,lmo2,isYTD?YTD25:null));
+
+  return{
+    cat26:sumByCat(f26sp,f26lv,f26cv),
+    cat25:sumByCat(f25sp,f25lv,f25cv),
+    ct26:sumByCT(f26sp,f26lv,f26cv),
+    ct25:sumByCT(f25sp,f25lv,f25cv),
+    ph26:sumByPhase(f26sp,f26lv),
+    mo26:sumByMo(f26sp,f26lv,f26cv),
+    mo25:sumByMo(f25sp,f25lv,f25cv),
+    cct26:sumByCatCT(f26sp,f26lv,f26cv),
+  };
+}
+
+function shiftMo(mo,months){
+  const[y,m]=mo.split('-').map(Number);
+  const d=new Date(y,m-1+months,1);
+  return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');
+}
+
+function filterRow(r,cat,ph,ct,mo1,mo2,moKey,maxMo=null){
+  if(cat&&r.cat!==cat)return false;
+  if(ph&&r.ph!==ph)return false;
+  if(ct&&r.ct!==ct)return false;
+  const mo=r[moKey];
+  if(mo1&&mo<mo1)return false;
+  if(mo2&&mo>mo2)return false;
+  if(maxMo&&mo>maxMo)return false;
+  return true;
+}
+function filterCVRow(r,cat,ct,mo1,mo2,maxMo=null){
+  if(cat&&r.cat!==cat)return false;
+  if(ct&&r.ct!==ct)return false;
+  const mo=r.mo;
+  if(mo1&&mo<mo1)return false;
+  if(mo2&&mo>mo2)return false;
+  if(maxMo&&mo>maxMo)return false;
+  return true;
+}
+
+function addCalcFields(r){
+  r.cpl=r.lv>0?Math.round(r.sp/r.lv):0;
+  r.cpt=r.cv>0?Math.round(r.sp/r.cv):0;
+  r.pct=r.lv>0?+((r.cv/r.lv)*100).toFixed(2):0;
+  return r;
+}
+
+function sumByCat(sp,lv,cv){
+  const m={};
+  sp.forEach(r=>{m[r.cat]=m[r.cat]||{cat:r.cat,sp:0,lv:0,cv:0};m[r.cat].sp+=r.sp||0});
+  lv.forEach(r=>{m[r.cat]=m[r.cat]||{cat:r.cat,sp:0,lv:0,cv:0};m[r.cat].lv+=r.lv||0});
+  cv.forEach(r=>{m[r.cat]=m[r.cat]||{cat:r.cat,sp:0,lv:0,cv:0};m[r.cat].cv+=r.cv||0});
+  return Object.values(m).map(addCalcFields);
+}
+function sumByCT(sp,lv,cv){
+  const m={};
+  sp.forEach(r=>{m[r.ct]=m[r.ct]||{ct:r.ct,sp:0,lv:0,cv:0};m[r.ct].sp+=r.sp||0});
+  lv.forEach(r=>{m[r.ct]=m[r.ct]||{ct:r.ct,sp:0,lv:0,cv:0};m[r.ct].lv+=r.lv||0});
+  cv.forEach(r=>{m[r.ct]=m[r.ct]||{ct:r.ct,sp:0,lv:0,cv:0};m[r.ct].cv+=r.cv||0});
+  return Object.values(m).map(addCalcFields).sort((a,b)=>b.sp-a.sp);
+}
+function sumByPhase(sp,lv){
+  const m={};
+  sp.forEach(r=>{const k=r.cat+'|'+r.ph;m[k]=m[k]||{cat:r.cat,ph:r.ph,sp:0,lv:0};m[k].sp+=r.sp||0});
+  lv.forEach(r=>{const k=r.cat+'|'+r.ph;m[k]=m[k]||{cat:r.cat,ph:r.ph,sp:0,lv:0};m[k].lv+=r.lv||0});
+  return Object.values(m).map(r=>{r.cpl=r.lv>0?Math.round(r.sp/r.lv):0;return r}).sort((a,b)=>b.sp-a.sp);
+}
+function sumByMo(sp,lv,cv){
+  const m={};
+  sp.forEach(r=>{m[r.mo]=m[r.mo]||{mo:r.mo,sp:0,lv:0,cv:0};m[r.mo].sp+=r.sp||0});
+  lv.forEach(r=>{m[r.mo]=m[r.mo]||{mo:r.mo,sp:0,lv:0,cv:0};m[r.mo].lv+=r.lv||0});
+  cv.forEach(r=>{m[r.mo]=m[r.mo]||{mo:r.mo,sp:0,lv:0,cv:0};m[r.mo].cv+=r.cv||0});
+  return Object.values(m).map(addCalcFields).sort((a,b)=>a.mo.localeCompare(b.mo)).filter(r=>r.sp>0||r.lv>0);
+}
+function sumByCatCT(sp,lv,cv){
+  const m={};
+  const k=(c,ct)=>c+'|'+ct;
+  sp.forEach(r=>{const key=k(r.cat,r.ct);m[key]=m[key]||{cat:r.cat,ct:r.ct,sp:0,lv:0,cv:0};m[key].sp+=r.sp||0});
+  lv.forEach(r=>{const key=k(r.cat,r.ct);m[key]=m[key]||{cat:r.cat,ct:r.ct,sp:0,lv:0,cv:0};m[key].lv+=r.lv||0});
+  cv.forEach(r=>{const key=k(r.cat,r.ct);m[key]=m[key]||{cat:r.cat,ct:r.ct,sp:0,lv:0,cv:0};m[key].cv+=r.cv||0});
+  return Object.values(m).map(addCalcFields).sort((a,b)=>b.sp-a.sp);
+}
+
+// ── FORMATTERS ────────────────────────────
+const fCr=n=>n>=1e7?'₹'+(n/1e7).toFixed(2)+'Cr':n>=1e5?'₹'+(n/1e5).toFixed(1)+'L':'₹'+Math.round(n).toLocaleString('en-IN');
+const fL=n=>n>=1e5?(n/1e5).toFixed(2)+'L':n>=1e3?(n/1e3).toFixed(1)+'K':Math.round(n).toLocaleString('en-IN');
+const fN=n=>Math.round(n).toLocaleString('en-IN');
+
+function delt(ty,ly,hg=true){
+  if(!ly||!isFinite(ly))return'<span class="in">—</span>';
+  const p=(ty-ly)/ly*100;const up=p>0;const good=hg?up:!up;
+  return'<span class="'+(good?'ig':'ir')+'">'+( up?'▲':'▼')+Math.abs(p).toFixed(1)+'%</span>';
+}
+function kdelt(ty,ly,hg=true){
+  if(!ly||!isFinite(ly))return'<div class="kpi-dy dn">—</div>';
+  const p=(ty-ly)/ly*100;const up=p>0;const good=hg?up:!up;
+  return'<div class="kpi-dy '+(good?'dg':'dr')+'">'+( up?'▲':'▼')+Math.abs(p).toFixed(1)+'%</div>';
+}
+const catP=c=>`<span class="catpill ${CAT_PCLS[c]||''}">${CAT_FULL[c]||c}</span>`;
+const ctName=ct=>CTN[ct]||ct;
+const rat=cpt=>{if(!cpt)return'<span class="rat"><div class="rd" style="background:#94a3b8"></div><span style="color:#94a3b8">N/A</span></span>';if(cpt<3000)return'<span class="rat"><div class="rd" style="background:#059669"></div><span style="color:#059669">Excellent</span></span>';if(cpt<6000)return'<span class="rat"><div class="rd" style="background:#1a56db"></div><span style="color:#1a56db">Good</span></span>';if(cpt<20000)return'<span class="rat"><div class="rd" style="background:#b45309"></div><span style="color:#b45309">Average</span></span>';return'<span class="rat"><div class="rd" style="background:#dc2626"></div><span style="color:#dc2626">Poor</span></span>';};
+
+const mLbl=mo=>{if(!mo)return'';const[y,m]=mo.split('-');const n=['',...'Jul Aug Sep Oct Nov Dec Jan Feb Mar Apr May Jun'.split(' ')];return n[+m]+' \''+y.slice(2)};
+
+// Chart registry
+const CH={};
+const mkC=(id,cfg)=>{if(CH[id]){CH[id].destroy()}const c=document.getElementById(id);if(!c)return;CH[id]=new Chart(c,cfg)};
+Chart.defaults.color='#7a839e';Chart.defaults.borderColor='#e0e4f0';Chart.defaults.font.family='Plus Jakarta Sans';
+
+// ── RENDER: EXEC ──────────────────────────
+function rExec(D){
+  const isYTD=FS.period==='ytd';
+  document.getElementById('exec-chip').textContent=isYTD?'YTD vs LY YTD':'Full Year vs LY';
+  const lyM={};D.cat25.forEach(r=>lyM[r.cat]=r);
+  const cats=['NSAT','SAT','VP'];
+
+  // Category mega tiles
+  const el=document.getElementById('exec-cats');el.innerHTML='';
+  cats.forEach(cat=>{
+    const r=D.cat26.find(x=>x.cat===cat)||{sp:0,lv:0,cv:0,cpl:0,cpt:0,pct:0};
+    const l=lyM[cat]||{};const col=CAT_COL[cat];
+    el.innerHTML+=`
+    <div class="cmt">
+      <div class="cmt-hd">
+        <span class="cmt-nm" style="color:${col}">${CAT_FULL[cat]}</span>
+        <span class="chip" style="background:${col}18;color:${col}">${isYTD?'YTD':'Full'}</span>
+      </div>
+      <div class="cmt-g">
+        <div class="cmt-m"><div class="cmt-ml">Spend</div><div class="cmt-mv" style="color:#1a56db">${fCr(r.sp)}</div><div class="cmt-ms">LY ${fCr(l.sp||0)} ${delt(r.sp,l.sp||0,false)}</div></div>
+        <div class="cmt-m"><div class="cmt-ml">Leads</div><div class="cmt-mv" style="color:#059669">${fL(r.lv)}</div><div class="cmt-ms">LY ${fL(l.lv||0)} ${delt(r.lv,l.lv||0,true)}</div></div>
+        <div class="cmt-m"><div class="cmt-ml">Conversions</div><div class="cmt-mv" style="color:#6d28d9">${fN(r.cv)}</div><div class="cmt-ms">LY ${fN(l.cv||0)} ${delt(r.cv,l.cv||0,true)}</div></div>
+      </div>
+      <div class="cmt-g" style="margin-top:10px;padding-top:10px;border-top:1px solid var(--bd)">
+        <div class="cmt-m"><div class="cmt-ml">Conv %</div><div class="cmt-mv" style="color:#059669;font-size:15px">${r.pct}%</div><div class="cmt-ms">LY ${(l.pct||0)}% ${delt(r.pct,l.pct||0,true)}</div></div>
+        <div class="cmt-m"><div class="cmt-ml">CPL</div><div class="cmt-mv" style="color:#b45309;font-size:15px">₹${r.cpl}</div><div class="cmt-ms">LY ₹${l.cpl||0} ${delt(r.cpl,l.cpl||0,false)}</div></div>
+        <div class="cmt-m"><div class="cmt-ml">CPT</div><div class="cmt-mv" style="color:#d9480f;font-size:15px">₹${fN(r.cpt)}</div><div class="cmt-ms">LY ₹${fN(l.cpt||0)} ${delt(r.cpt,l.cpt||0,false)}</div></div>
+      </div>
+    </div>`;
+  });
+
+  // Totals
+  const t26={sp:D.cat26.reduce((s,r)=>s+r.sp,0),lv:D.cat26.reduce((s,r)=>s+r.lv,0),cv:D.cat26.reduce((s,r)=>s+r.cv,0)};
+  addCalcFields(t26);
+  const t25={sp:D.cat25.reduce((s,r)=>s+r.sp,0),lv:D.cat25.reduce((s,r)=>s+r.lv,0),cv:D.cat25.reduce((s,r)=>s+r.cv,0)};
+  addCalcFields(t25);
+  document.getElementById('exec-tots').innerHTML=[
+    {l:'Total Spend',v:fCr(t26.sp),s:'LY '+fCr(t25.sp),vc:'kv-sp',hg:false,d:[t26.sp,t25.sp]},
+    {l:'Total Leads',v:fL(t26.lv),s:'LY '+fL(t25.lv),vc:'kv-lv',hg:true,d:[t26.lv,t25.lv]},
+    {l:'Total Conversions',v:fN(t26.cv),s:'LY '+fN(t25.cv),vc:'kv-cv',hg:true,d:[t26.cv,t25.cv]},
+    {l:'Conv %',v:t26.pct+'%',s:'LY '+t25.pct+'%',vc:'kv-pc',hg:true,d:[t26.pct,t25.pct]},
+    {l:'Avg CPL',v:'₹'+t26.cpl,s:'LY ₹'+t25.cpl,vc:'kv-cp',hg:false,d:[t26.cpl,t25.cpl]},
+    {l:'Avg CPT',v:'₹'+fN(t26.cpt),s:'LY ₹'+fN(t25.cpt),vc:'kv-ct',hg:false,d:[t26.cpt,t25.cpt]},
+  ].map(k=>`<div class="kpi"><div class="kpi-lbl">${k.l}</div><div class="${k.vc}">${k.v}</div><div class="kpi-sub">${k.s}</div>${kdelt(k.d[0],k.d[1],k.hg)}</div>`).join('');
+
+  // Summary table
+  const tb=document.getElementById('exec-tbody');tb.innerHTML='';
+  const lyMCat={};D.cat25.forEach(r=>lyMCat[r.cat]=r);
+  [...D.cat26,{cat:'TOT',...t26}].forEach((r,i)=>{
+    const l=i<D.cat26.length?(lyMCat[r.cat]||{}):t25;const isTot=i>=D.cat26.length;
+    tb.innerHTML+=`<tr class="${isTot?'tr-tot':''}"><td>${isTot?'<b>Total</b>':catP(r.cat)}</td><td class="num"><span class="mv mv-sp">${fCr(r.sp)}</span></td><td class="num">${delt(r.sp,l.sp||0,false)}</td><td class="num"><span class="mv mv-lv">${fL(r.lv)}</span></td><td class="num">${delt(r.lv,l.lv||0,true)}</td><td class="num"><span class="mv mv-cv">${fN(r.cv)}</span></td><td class="num">${delt(r.cv,l.cv||0,true)}</td><td class="num"><span class="mv mv-pc">${r.pct}%</span></td><td class="num">${delt(r.pct,l.pct||0,true)}</td><td class="num"><span class="mv mv-cp">₹${r.cpl}</span></td><td class="num">${delt(r.cpl,l.cpl||0,false)}</td><td class="num"><span class="mv mv-ct">₹${fN(r.cpt)}</span></td><td class="num">${delt(r.cpt,l.cpt||0,false)}</td></tr>`;
+  });
+
+  const c26=D.cat26.filter(r=>cats.includes(r.cat));
+  mkC('c-donut',{type:'doughnut',data:{labels:c26.map(r=>CAT_FULL[r.cat]),datasets:[{data:c26.map(r=>r.sp),backgroundColor:c26.map(r=>CAT_COL[r.cat]),borderWidth:0,hoverOffset:6}]},options:{responsive:true,maintainAspectRatio:false,cutout:'68%',plugins:{legend:{position:'bottom',labels:{padding:14,font:{size:11},boxWidth:10}},tooltip:{callbacks:{label:ctx=>` ${ctx.label}: ${fCr(ctx.raw)}`}}}}});
+  const ctR=D.ct26.filter(r=>r.cpt>0&&!['AP','OT'].includes(r.ct)).sort((a,b)=>a.cpt-b.cpt).slice(0,6);
+  mkC('c-ct-rank',{type:'bar',indexAxis:'y',data:{labels:ctR.map(r=>ctName(r.ct)),datasets:[{data:ctR.map(r=>r.cpt),backgroundColor:ctR.map(r=>(CT_COL[r.ct]||'#888')+('55')),borderColor:ctR.map(r=>CT_COL[r.ct]||'#888'),borderWidth:1.5,borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>` ₹${fN(ctx.raw)}`}}},scales:{x:{grid:{color:'#e0e4f0'},ticks:{callback:v=>'₹'+fN(v)}},y:{grid:{display:false}}}}});
+  mkC('c-spend-cmp',{type:'bar',data:{labels:cats.map(c=>CAT_FULL[c]),datasets:[{label:'TY',data:cats.map(c=>{const r=D.cat26.find(x=>x.cat===c);return r?+(r.sp/1e7).toFixed(2):0}),backgroundColor:cats.map(c=>CAT_COL[c]+'44'),borderColor:cats.map(c=>CAT_COL[c]),borderWidth:1.5,borderRadius:4},{label:'LY',data:cats.map(c=>{const r=D.cat25.find(x=>x.cat===c);return r?+(r.sp/1e7).toFixed(2):0}),backgroundColor:'rgba(0,0,0,.04)',borderColor:'rgba(0,0,0,.18)',borderWidth:1,borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top'}},scales:{y:{grid:{color:'#e0e4f0'},ticks:{callback:v=>'₹'+v+'Cr'}},x:{grid:{display:false}}}}});
+}
+
+// ── RENDER: YOY ──────────────────────────
+function rYOY(D){
+  const isYTD=FS.period==='ytd';
+  document.getElementById('yoy-sh').textContent=isYTD?'YoY — AY26 YTD vs AY25 YTD':'YoY — AY26 Full vs AY25 Full';
+  document.getElementById('yoy-chip').textContent=isYTD?'YTD':'Full Year';
+  const cats=['NSAT','SAT','VP'];
+  const lyM={};D.cat25.forEach(r=>lyM[r.cat]=r);
+
+  const secRow=(elId,lbl,key,fmt,hg,vc)=>{
+    const el=document.getElementById(elId);
+    el.innerHTML=`<div style="grid-column:1/-1;font-size:9.5px;font-weight:800;color:var(--i4);text-transform:uppercase;letter-spacing:.8px;padding-bottom:7px;border-bottom:1px solid var(--bd)">${lbl}</div>`;
+    cats.forEach(c=>{
+      const t=D.cat26.find(x=>x.cat===c)||{};const l=lyM[c]||{};const col=CAT_COL[c];
+      el.innerHTML+=`<div class="kpi"><div class="kpi-bar" style="background:${col}"></div><div class="kpi-lbl">${CAT_FULL[c]}</div><div class="${vc}">${fmt(t[key]||0)}</div><div class="kpi-sub">LY ${fmt(l[key]||0)}</div>${kdelt(t[key]||0,l[key]||0,hg)}</div>`;
+    });
+  };
+  secRow('yoy-sp','💰 Spend','sp',fCr,false,'kv-sp');
+  secRow('yoy-lv','📋 Leads','lv',fL,true,'kv-lv');
+  secRow('yoy-cv','🎯 Conversions','cv',fN,true,'kv-cv');
+  secRow('yoy-ef','⚡ CPL Efficiency','cpl',v=>'₹'+v,false,'kv-cp');
+
+  const t26={sp:D.cat26.reduce((s,r)=>s+r.sp,0),lv:D.cat26.reduce((s,r)=>s+r.lv,0),cv:D.cat26.reduce((s,r)=>s+r.cv,0)};addCalcFields(t26);
+  const t25={sp:D.cat25.reduce((s,r)=>s+r.sp,0),lv:D.cat25.reduce((s,r)=>s+r.lv,0),cv:D.cat25.reduce((s,r)=>s+r.cv,0)};addCalcFields(t25);
+  const metrics=[{l:'Spend',k:'sp',f:fCr,hg:false},{l:'Leads',k:'lv',f:fL,hg:true},{l:'Conversions',k:'cv',f:fN,hg:true},{l:'Conv %',k:'pct',f:v=>v+'%',hg:true},{l:'CPL',k:'cpl',f:v=>'₹'+v,hg:false},{l:'CPT',k:'cpt',f:v=>'₹'+fN(v),hg:false}];
+  const tb=document.getElementById('yoy-tbody');tb.innerHTML='';
+  metrics.forEach(m=>{
+    let row=`<tr><td class="bold">${m.l}</td>`;
+    cats.forEach((c,i)=>{
+      const t=D.cat26.find(x=>x.cat===c)||{};const l=lyM[c]||{};
+      const bc=i===0?'class="yn"':i===1?'class="ys"':'class="yv"';
+      row+=`<td ${bc} class="num">${m.f(t[m.k]||0)}</td><td class="num">${m.f(l[m.k]||0)}</td><td>${delt(t[m.k]||0,l[m.k]||0,m.hg)}</td>`;
+    });
+    row+=`<td class="yt num">${m.f(t26[m.k]||0)}</td><td class="num">${m.f(t25[m.k]||0)}</td><td>${delt(t26[m.k]||0,t25[m.k]||0,m.hg)}</td></tr>`;
+    tb.innerHTML+=row;
+  });
+
+  const labels=cats.map(c=>CAT_FULL[c]);
+  const barCfg=(key,fmt)=>({type:'bar',data:{labels,datasets:[{label:'TY',data:cats.map(c=>{const r=D.cat26.find(x=>x.cat===c);return r?r[key]:0}),backgroundColor:cats.map(c=>CAT_COL[c]+'44'),borderColor:cats.map(c=>CAT_COL[c]),borderWidth:1.5,borderRadius:4},{label:'LY',data:cats.map(c=>{const r=D.cat25.find(x=>x.cat===c);return r?r[key]:0}),backgroundColor:'rgba(0,0,0,.04)',borderColor:'rgba(0,0,0,.18)',borderWidth:1,borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top'}},scales:{y:{grid:{color:'#e0e4f0'},ticks:{callback:v=>fmt(v)}},x:{grid:{display:false}}}}});
+  mkC('c-yoy-cvr',barCfg('pct',v=>v+'%'));
+  mkC('c-yoy-cpl',barCfg('cpl',v=>'₹'+v));
+  mkC('c-yoy-cpt',barCfg('cpt',v=>'₹'+fN(v)));
+}
+
+// ── RENDER: CAT ──────────────────────────
+function rCat(D){
+  const lyM={};D.cat25.forEach(r=>lyM[r.cat]=r);
+  [['NSAT','cat-n-kpi','c-n-ct','t-n-ph'],['SAT','cat-s-kpi','c-s-ct','t-s-ph'],['VP','cat-v-kpi','c-v-ct',null]].forEach(([cat,kpiId,chId,phId])=>{
+    const r=D.cat26.find(x=>x.cat===cat)||{sp:0,lv:0,cv:0,cpl:0,cpt:0,pct:0};
+    const l=lyM[cat]||{};const col=CAT_COL[cat];
+    document.getElementById(kpiId).innerHTML=[
+      {lbl:'Spend',v:fCr(r.sp),s:'LY '+fCr(l.sp||0),vc:'kv-sp',hg:false,d:[r.sp,l.sp||0]},
+      {lbl:'Leads',v:fL(r.lv),s:'LY '+fL(l.lv||0),vc:'kv-lv',hg:true,d:[r.lv,l.lv||0]},
+      {lbl:'Conv',v:fN(r.cv),s:'LY '+fN(l.cv||0),vc:'kv-cv',hg:true,d:[r.cv,l.cv||0]},
+      {lbl:'Conv %',v:r.pct+'%',s:'LY '+(l.pct||0)+'%',vc:'kv-pc',hg:true,d:[r.pct,l.pct||0]},
+      {lbl:'CPL',v:'₹'+r.cpl,s:'LY ₹'+(l.cpl||0),vc:'kv-cp',hg:false,d:[r.cpl,l.cpl||0]},
+      {lbl:'CPT',v:'₹'+fN(r.cpt),s:'LY ₹'+fN(l.cpt||0),vc:'kv-ct',hg:false,d:[r.cpt,l.cpt||0]},
+    ].map(k=>`<div class="kpi"><div class="kpi-bar" style="background:${col}"></div><div class="kpi-lbl">${k.lbl}</div><div class="${k.vc}">${k.v}</div><div class="kpi-sub">${k.s}</div>${kdelt(k.d[0],k.d[1],k.hg)}</div>`).join('');
+
+    const cct=D.cct26.filter(x=>x.cat===cat&&!['AP','OT'].includes(x.ct)).sort((a,b)=>b.sp-a.sp).slice(0,6);
+    mkC(chId,{type:'bar',data:{labels:cct.map(r=>ctName(r.ct)),datasets:[{label:'Spend',data:cct.map(r=>r.sp),backgroundColor:col+'33',borderColor:col,borderWidth:1.5,borderRadius:4,yAxisID:'y'},{label:'CPL',data:cct.map(r=>r.cpl),type:'line',borderColor:'#b45309',backgroundColor:'transparent',borderWidth:2,yAxisID:'y2',tension:.4,pointRadius:4,pointBackgroundColor:'#b45309'}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top'}},scales:{y:{grid:{color:'#e0e4f0'},position:'left',ticks:{callback:v=>fCr(v)}},y2:{position:'right',grid:{display:false},ticks:{callback:v=>'₹'+v}},x:{grid:{display:false},ticks:{maxRotation:30}}}}});
+
+    if(phId){
+      const phases=D.ph26.filter(p=>p.cat===cat);const totS=phases.reduce((s,p)=>s+p.sp,0);
+      const pb=document.getElementById(phId).querySelector('tbody');pb.innerHTML='';
+      phases.forEach(p=>{const sh=(p.sp/totS*100).toFixed(1);pb.innerHTML+=`<tr><td><span class="phb">${p.ph}</span></td><td class="num"><span class="mv mv-sp">${fCr(p.sp)}</span></td><td class="num"><span class="mv mv-lv">${fL(p.lv)}</span></td><td class="num"><span class="mv mv-cp">₹${p.cpl}</span></td><td><div style="display:flex;align-items:center;gap:6px"><div class="mbar" style="width:60px"><div class="mbar-f" style="width:${sh}%;background:${col}"></div></div><span style="font-size:10px;color:var(--i3)">${sh}%</span></div></td></tr>`;});
+    }
+  });
+  const vp=D.cat26.find(x=>x.cat==='VP')||{};const vpL=lyM['VP']||{};
+  document.getElementById('vp-obs').innerHTML=`<div class="ins ins-r" style="margin-bottom:8px"><div class="ins-ico">📉</div><div><div class="ins-ti">Lead Volume Drop</div><div class="ins-tx">LY ${fL(vpL.lv||0)} → TY ${fL(vp.lv||0)} (${delt(vp.lv||0,vpL.lv||0,true)}). CPL ₹${vpL.cpl||0}→₹${vp.cpl}.</div></div></div><div class="ins ins-g"><div class="ins-ico">✅</div><div><div class="ins-ti">Quality Signal</div><div class="ins-tx">Conv% LY ${vpL.pct||0}% → TY ${vp.pct}%. ${vp.pct>=(vpL.pct||0)?'Improving despite lower volume.':'Also declining — urgent.'}</div></div></div>`;
+}
+
+// ── RENDER: CT ──────────────────────────
+function rCT(D){
+  document.getElementById('ct-chip').textContent=FS.period==='ytd'?'YTD':'Full Year';
+  const lyM={};D.ct25.forEach(r=>lyM[r.ct]=r);
+  const best=D.ct26.filter(r=>r.cpt>0&&!['AP','OT'].includes(r.ct)).sort((a,b)=>a.cpt-b.cpt)[0]||{};
+  const worst=D.ct26.filter(r=>r.cpt>0&&!['AP','OT'].includes(r.ct)).sort((a,b)=>b.cpt-a.cpt)[0]||{};
+  const topLv=D.ct26.slice().sort((a,b)=>b.lv-a.lv)[0]||{};
+  const topSp=D.ct26.slice().sort((a,b)=>b.sp-a.sp)[0]||{};
+  document.getElementById('ct-top').innerHTML=[
+    {l:'🏆 Best CPT',v:ctName(best.ct||'—'),s:'CPT ₹'+fN(best.cpt||0)+' · '+best.pct+'% conv',vc:'kv-cv'},
+    {l:'⚠️ Worst CPT',v:ctName(worst.ct||'—'),s:'CPT ₹'+fN(worst.cpt||0),vc:'kv-ct'},
+    {l:'Top Lead Source',v:ctName(topLv.ct||'—'),s:fL(topLv.lv||0)+' leads',vc:'kv-lv'},
+    {l:'Top Spend',v:ctName(topSp.ct||'—'),s:fCr(topSp.sp||0),vc:'kv-sp'},
+  ].map(k=>`<div class="kpi"><div class="kpi-lbl">${k.l}</div><div class="${k.vc}" style="font-size:18px">${k.v}</div><div class="kpi-sub">${k.s}</div></div>`).join('');
+
+  const tb=document.getElementById('ct-tbody');tb.innerHTML='';
+  D.ct26.filter(r=>r.ct!=='AP').forEach(r=>{
+    const l=lyM[r.ct]||{};
+    tb.innerHTML+=`<tr><td><span class="ctb">${ctName(r.ct)}</span></td><td class="num"><span class="mv mv-sp">${fCr(r.sp)}</span></td><td class="num"><span class="mv mv-lv">${fL(r.lv)}</span></td><td class="num"><span class="mv mv-cv">${fN(r.cv)}</span></td><td class="num"><span class="mv mv-pc">${r.pct}%</span></td><td class="num"><span class="mv mv-cp">₹${fN(r.cpl)}</span></td><td class="num"><span class="mv mv-ct">₹${fN(r.cpt)}</span></td><td style="border-left:1px solid var(--bd2)" class="num">${l.cpl?'₹'+l.cpl:'—'}</td><td class="num">${l.cpt?'₹'+fN(l.cpt):'—'}</td><td>${l.cpl?delt(r.cpl,l.cpl,false):'—'}</td><td>${rat(r.cpt)}</td></tr>`;
+  });
+
+  const ctF=D.ct26.filter(r=>r.sp>0&&r.ct!=='AP');
+  mkC('c-ct-pie',{type:'doughnut',data:{labels:ctF.map(r=>ctName(r.ct)),datasets:[{data:ctF.map(r=>r.sp),backgroundColor:ctF.map(r=>CT_COL[r.ct]||'#94a3b8'),borderWidth:0,hoverOffset:5}]},options:{responsive:true,maintainAspectRatio:false,cutout:'60%',plugins:{legend:{position:'bottom',labels:{padding:10,font:{size:11},boxWidth:9}},tooltip:{callbacks:{label:ctx=>` ${ctName(ctx.label)}: ${fCr(ctx.raw)}`}}}}});
+  const ctB=D.ct26.filter(r=>lyM[r.ct]&&r.ct!=='AP');
+  mkC('c-ct-cpl',{type:'bar',data:{labels:ctB.map(r=>ctName(r.ct)),datasets:[{label:'TY CPL',data:ctB.map(r=>r.cpl),backgroundColor:ctB.map(r=>(CT_COL[r.ct]||'#888')+'55'),borderColor:ctB.map(r=>CT_COL[r.ct]||'#888'),borderWidth:1.5,borderRadius:4},{label:'LY CPL',data:ctB.map(r=>(lyM[r.ct]||{}).cpl||0),backgroundColor:'rgba(0,0,0,.04)',borderColor:'rgba(0,0,0,.18)',borderWidth:1,borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top'}},scales:{y:{grid:{color:'#e0e4f0'},ticks:{callback:v=>'₹'+v}},x:{grid:{display:false},ticks:{maxRotation:25}}}}});
+  const tb2=document.getElementById('cct-tbody');tb2.innerHTML='';
+  D.cct26.filter(r=>r.ct!=='AP').forEach(r=>{tb2.innerHTML+=`<tr><td>${catP(r.cat)}</td><td><span class="ctb">${ctName(r.ct)}</span></td><td class="num"><span class="mv mv-sp">${fCr(r.sp)}</span></td><td class="num"><span class="mv mv-lv">${fL(r.lv)}</span></td><td class="num"><span class="mv mv-cv">${fN(r.cv)}</span></td><td class="num"><span class="mv mv-pc">${r.pct}%</span></td><td class="num"><span class="mv mv-cp">₹${fN(r.cpl)}</span></td><td class="num"><span class="mv mv-ct">₹${fN(r.cpt)}</span></td><td>${rat(r.cpt)}</td></tr>`;});
+}
+
+// ── RENDER: PHASE ────────────────────────
+function rPhase(D){
+  const totS=D.ph26.reduce((s,r)=>s+r.sp,0),totL=D.ph26.reduce((s,r)=>s+r.lv,0);
+  const tb=document.getElementById('ph-tbody');tb.innerHTML='';
+  D.ph26.forEach(r=>{
+    const ss=(r.sp/totS*100).toFixed(1),ls=(r.lv/totL*100).toFixed(1),col=CAT_COL[r.cat];
+    tb.innerHTML+=`<tr><td>${catP(r.cat)}</td><td><span class="phb">${r.ph}</span></td><td class="num"><span class="mv mv-sp">${fCr(r.sp)}</span></td><td class="num"><span class="mv mv-lv">${fL(r.lv)}</span></td><td class="num"><span class="mv mv-cp">₹${r.cpl}</span></td><td><div style="display:flex;align-items:center;gap:6px"><div class="mbar" style="width:60px"><div class="mbar-f" style="width:${ss}%;background:${col}"></div></div><span style="font-size:10px;color:var(--i3)">${ss}%</span></div></td><td><div style="display:flex;align-items:center;gap:6px"><div class="mbar" style="width:60px"><div class="mbar-f" style="width:${ls}%;background:${col}55"></div></div><span style="font-size:10px;color:var(--i3)">${ls}%</span></div></td></tr>`;
+  });
+  mkC('c-ph-sp',{type:'bar',indexAxis:'y',data:{labels:D.ph26.map(r=>r.ph),datasets:[{data:D.ph26.map(r=>r.sp),backgroundColor:D.ph26.map(r=>(CAT_COL[r.cat]||'#888')+'44'),borderColor:D.ph26.map(r=>CAT_COL[r.cat]||'#888'),borderWidth:1.5,borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{color:'#e0e4f0'},ticks:{callback:v=>fCr(v)}},y:{grid:{display:false}}}}});
+  mkC('c-ph-cpl',{type:'bar',indexAxis:'y',data:{labels:D.ph26.map(r=>r.ph),datasets:[{data:D.ph26.map(r=>r.cpl),backgroundColor:D.ph26.map(r=>r.cpl<200?'#05966933':r.cpl<300?'#b4530933':'#dc262633'),borderColor:D.ph26.map(r=>r.cpl<200?'#059669':r.cpl<300?'#b45309':'#dc2626'),borderWidth:1.5,borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{color:'#e0e4f0'},ticks:{callback:v=>'₹'+v}},y:{grid:{display:false}}}}});
+  mkC('c-ph-lv',{type:'doughnut',data:{labels:D.ph26.map(r=>r.ph),datasets:[{data:D.ph26.map(r=>r.lv),backgroundColor:D.ph26.map(r=>(CAT_COL[r.cat]||'#888')+'bb'),borderWidth:0,hoverOffset:5}]},options:{responsive:true,maintainAspectRatio:false,cutout:'55%',plugins:{legend:{position:'bottom',labels:{padding:9,font:{size:11},boxWidth:9}}}}});
+  document.getElementById('ph-obs').innerHTML='<div class="ins ins-g" style="margin-bottom:8px"><div class="ins-ico">✅</div><div><div class="ins-ti">SAT Phase 1 — Most Efficient (CPL ₹167)</div><div class="ins-tx">Lowest CPL across all phases but only 17% of SAT budget. Scale up before Phase 3.</div></div></div><div class="ins ins-a" style="margin-bottom:8px"><div class="ins-ico">⚠️</div><div><div class="ins-ti">SAT Phase 2 — CPL ₹296 (+78% vs Ph.1)</div><div class="ins-tx">Review audiences and creatives for Phase 2 urgently.</div></div></div><div class="ins ins-b"><div class="ins-ico">💡</div><div><div class="ins-ti">NSAT Ph.2 CPL 22% Higher than Ph.1</div><div class="ins-tx">Ph.1 ₹160 vs Ph.2 ₹195. Phase 2 audiences more competitive — refresh targeting.</div></div></div>';
+}
+
+// ── RENDER: TRENDS ───────────────────────
+function rTrends(D){
+  const mo=D.mo26;
+  mkC('c-mo-main',{type:'bar',data:{labels:mo.map(r=>mLbl(r.mo)),datasets:[{label:'Spend',data:mo.map(r=>+(r.sp/1e7).toFixed(2)),backgroundColor:'#1a56db1a',borderColor:'#1a56db',borderWidth:1.5,borderRadius:4,yAxisID:'y1',order:3},{label:'Leads',data:mo.map(r=>r.lv),type:'line',borderColor:'#059669',backgroundColor:'transparent',borderWidth:2.5,yAxisID:'y2',tension:.4,pointRadius:3,order:1},{label:'Conv',data:mo.map(r=>r.cv),type:'line',borderColor:'#6d28d9',backgroundColor:'transparent',borderWidth:2.5,yAxisID:'y3',tension:.4,pointRadius:3,order:2}]},options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index'},plugins:{legend:{position:'top'}},scales:{y1:{grid:{color:'#e0e4f0'},position:'left',ticks:{callback:v=>'₹'+v+'Cr'}},y2:{position:'right',grid:{display:false},ticks:{callback:v=>fL(v)}},y3:{position:'right',grid:{display:false},display:false},x:{grid:{display:false}}}}});
+  mkC('c-mo-cpl',{type:'line',data:{labels:mo.map(r=>mLbl(r.mo)),datasets:[{label:'TY CPL',data:mo.map(r=>r.cpl),borderColor:'#1a56db',backgroundColor:'#1a56db0d',fill:true,borderWidth:2,tension:.4,pointRadius:3},{label:'LY CPL',data:D.mo25.map(r=>r.cpl),borderColor:'rgba(0,0,0,.2)',backgroundColor:'transparent',borderWidth:1.5,borderDash:[4,3],tension:.4,pointRadius:2}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top'}},scales:{y:{grid:{color:'#e0e4f0'},ticks:{callback:v=>'₹'+v}},x:{grid:{display:false}}}}});
+  mkC('c-mo-cpt',{type:'line',data:{labels:mo.map(r=>mLbl(r.mo)),datasets:[{label:'CPT',data:mo.map(r=>r.cpt),borderColor:'#d9480f',backgroundColor:'#d9480f0d',fill:true,borderWidth:2,tension:.4,pointRadius:3}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top'}},scales:{y:{grid:{color:'#e0e4f0'},ticks:{callback:v=>'₹'+fN(v)}},x:{grid:{display:false}}}}});
+  mkC('c-mo-cvr',{type:'line',data:{labels:mo.map(r=>mLbl(r.mo)),datasets:[{label:'Conv %',data:mo.map(r=>r.pct),borderColor:'#059669',backgroundColor:'#0596690d',fill:true,borderWidth:2,tension:.4,pointRadius:3}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top'}},scales:{y:{grid:{color:'#e0e4f0'},ticks:{callback:v=>v+'%'}},x:{grid:{display:false}}}}});
+  const tb=document.getElementById('mo-tbody');tb.innerHTML='';
+  mo.forEach((r,i)=>{
+    const prev=i>0?mo[i-1]:null;
+    tb.innerHTML+=`<tr><td class="bold">${mLbl(r.mo)} ${r.mo?.slice(0,4)||''}</td><td class="num"><span class="mv mv-sp">${fCr(r.sp)}</span></td><td class="num"><span class="mv mv-lv">${fL(r.lv)}</span></td><td class="num"><span class="mv mv-cv">${fN(r.cv)}</span></td><td class="num"><span class="mv mv-pc">${r.pct}%</span></td><td class="num"><span class="mv mv-cp">₹${r.cpl}</span></td><td class="num"><span class="mv mv-ct">₹${fN(r.cpt)}</span></td><td>${prev&&prev.cpl?delt(r.cpl,prev.cpl,false):'—'}</td></tr>`;
+  });
+}
+
+// ── TAB + RENDER ─────────────────────────
+function tab(id,btn){
+  document.querySelectorAll('.pg').forEach(p=>p.classList.remove('act'));
+  document.querySelectorAll('.nb').forEach(b=>b.classList.remove('act'));
+  document.getElementById('pg-'+id).classList.add('act');
+  btn.classList.add('act');
+}
+function renderAll(){
+  const D=compute();
+  rExec(D);rYOY(D);rCat(D);rCT(D);rPhase(D);rTrends(D);
+}
+renderAll();
+</script>
+</body>
+</html>
